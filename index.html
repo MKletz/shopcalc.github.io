@@ -47,7 +47,11 @@
         th { text-align: left; color: #888; border-bottom: 1px solid #333; padding: 8px; font-size: 0.7rem; text-transform: uppercase; }
         td { padding: 10px 8px; border-bottom: 1px solid #222; }
         .highlight { color: var(--wood); font-weight: bold; }
-        .history { margin-top: 15px; background: #222; padding: 8px; border-radius: 4px; max-height: 100px; overflow-y: auto; font-family: monospace; font-size: 0.8rem; color: #777; border: 1px solid #333; }
+
+        /* History Collapsible Styling */
+        .history-container { margin-top: 15px; }
+        .history-toggle { width: 100%; background: #444; color: #bbb; padding: 8px; font-size: 0.75rem; text-transform: uppercase; border-radius: 4px; cursor: pointer; text-align: center; }
+        .history { display: none; margin-top: 5px; background: #222; padding: 8px; border-radius: 4px; max-height: 120px; overflow-y: auto; font-family: monospace; font-size: 0.8rem; color: #777; border: 1px solid #333; }
         .btn-del-save { background: #c0392b; color: white; padding: 4px 8px; font-size: 0.7rem; }
     </style>
 </head>
@@ -130,7 +134,10 @@
             <button class="btn-save" onclick="saveMeasurement()">💾 Save to Cut List</button>
         </div>
         
-        <div class="history" id="history-log">History: Ready</div>
+        <div class="history-container">
+            <div class="history-toggle" onclick="toggleHistory()">📋 View Calculation History</div>
+            <div class="history" id="history-log">History: Ready</div>
+        </div>
     </div>
 
     <div style="width: 100%; max-width: 500px;">
@@ -195,6 +202,18 @@
         mul: { sym: '×', fn: (a, b) => a * b }, 
         div: { sym: '÷', fn: (a, b) => b === 0 ? a : a / b } 
     };
+
+    function toggleHistory() {
+        const log = document.getElementById('history-log');
+        const toggle = document.querySelector('.history-toggle');
+        if (log.style.display === 'block') {
+            log.style.display = 'none';
+            toggle.innerText = '📋 View Calculation History';
+        } else {
+            log.style.display = 'block';
+            toggle.innerText = '❌ Close History';
+        }
+    }
 
     function toggleSnap() {
         isSnapEnabled = document.getElementById('snap-toggle').checked;
