@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ShopBench Pro // Precision Dashboard</title>
+    <title>Shop Calc</title>
     <style>
         :root { --wood: #e67e22; --slate: #2c3e50; --bg: #121212; --decimal-blue: #3498db; --success: #27ae60; --purple: #9b59b6; }
         body { font-family: 'Segoe UI', sans-serif; background: #333; color: white; margin: 0; padding: 20px; }
@@ -50,6 +50,7 @@
         th { text-align: left; color: #888; border-bottom: 1px solid #333; padding: 8px; font-size: 0.7rem; text-transform: uppercase; }
         td { padding: 10px 8px; border-bottom: 1px solid #222; }
         .highlight { color: var(--wood); font-weight: bold; }
+        .distinct { color: var(--success); font-weight: bold; } /* Added green highlight class */
 
         .history-container { margin-top: 15px; }
         .history-toggle { width: 100%; background: #444; color: #bbb; padding: 8px; font-size: 0.75rem; text-transform: uppercase; border-radius: 4px; cursor: pointer; text-align: center; }
@@ -374,10 +375,11 @@
 
         for (let i = 0; i < n; i++) {
             const pos = n === 1 ? L / 2 : offset + (centerSpacing * i);
+            const isDistinct = (i === 0 || i === n - 1); // Check for first and last
             tbody.innerHTML += `
                 <tr>
                     <td>Mark ${i+1}</td>
-                    <td class="highlight">${formatResult(pos)}</td>
+                    <td class="${isDistinct ? 'distinct' : 'highlight'}">${formatResult(pos)}</td>
                     <td>${i === 0 ? 'Start' : formatResult(centerSpacing)}</td>
                 </tr>
             `;
