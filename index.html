@@ -8,6 +8,33 @@
         :root { --wood: #e67e22; --slate: #2c3e50; --bg: #121212; --decimal-blue: #3498db; --success: #27ae60; --purple: #9b59b6; --danger: #c0392b; }
         body { font-family: 'Segoe UI', sans-serif; background: #333; color: white; margin: 0; padding: 20px; }
         
+        /* Toast Notification Styles */
+        #toast {
+            visibility: hidden;
+            min-width: 250px;
+            background-color: var(--slate);
+            color: #fff;
+            text-align: center;
+            border-radius: 8px;
+            padding: 16px;
+            position: fixed;
+            z-index: 1000;
+            left: 50%;
+            bottom: 30px;
+            transform: translateX(-50%);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            border-left: 5px solid var(--success);
+            font-weight: bold;
+        }
+
+        #toast.show {
+            visibility: visible;
+            animation: fadein 0.5s, fadeout 0.5s 2.5s;
+        }
+
+        @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
+        @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
+
         .header-area { max-width: 1040px; margin: 0 auto 10px auto; display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 15px; }
         .title-container { flex-grow: 1; }
         .project-title-input { background: transparent; border: none; border-bottom: 2px solid #555; color: var(--wood); font-size: 2rem; font-weight: bold; width: 100%; max-width: 600px; outline: none; transition: 0.3s; }
@@ -71,6 +98,8 @@
     </style>
 </head>
 <body>
+
+<div id="toast">🔗 Project Link Copied!</div>
 
 <div class="header-area">
     <div class="title-container">
@@ -247,7 +276,19 @@
         } catch (e) { console.error("Load failed", e); }
     }
 
-    function copyProjectLink() { syncState(); navigator.clipboard.writeText(window.location.href).then(() => alert("Link copied to clipboard!")); }
+    function showToast() {
+        const x = document.getElementById("toast");
+        x.className = "show";
+        setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
+    }
+
+    function copyProjectLink() { 
+        syncState(); 
+        navigator.clipboard.writeText(window.location.href).then(() => {
+            showToast();
+        }); 
+    }
+
     function refreshUI() { updateDisplay(); updatePreview(); calculateLayout(); updateSavedList(); calculateBF(); updateMaterialList(); }
     function toggleSnap() { isSnapEnabled = document.getElementById('snap-toggle').checked; document.getElementById('prec-container').classList.toggle('disabled', !isSnapEnabled); syncState(); refreshUI(); }
     function setPrecision(d) { roundingDenominator = d; document.querySelectorAll('.prec-btn').forEach(b => b.classList.toggle('active', b.innerText.includes(d))); syncState(); refreshUI(); }
