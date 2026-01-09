@@ -3,35 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shop Calc - Auto-Save Enabled</title>
+    <title>Shop Calc - Optimized Layout</title>
     <style>
         :root { --wood: #e67e22; --slate: #2c3e50; --bg: #121212; --decimal-blue: #3498db; --success: #27ae60; --purple: #9b59b6; --danger: #c0392b; }
         body { font-family: 'Segoe UI', sans-serif; background: #333; color: white; margin: 0; padding: 20px; }
         
-        /* Toast Notification Styles */
         #toast {
-            visibility: hidden;
-            min-width: 250px;
-            background-color: var(--slate);
-            color: #fff;
-            text-align: center;
-            border-radius: 8px;
-            padding: 16px;
-            position: fixed;
-            z-index: 1000;
-            left: 50%;
-            bottom: 30px;
-            transform: translateX(-50%);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            border-left: 5px solid var(--success);
-            font-weight: bold;
+            visibility: hidden; min-width: 250px; background-color: var(--slate); color: #fff;
+            text-align: center; border-radius: 8px; padding: 16px; position: fixed; z-index: 1000;
+            left: 50%; bottom: 30px; transform: translateX(-50%); box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            border-left: 5px solid var(--success); font-weight: bold;
         }
-
-        #toast.show {
-            visibility: visible;
-            animation: fadein 0.5s, fadeout 0.5s 2.5s;
-        }
-
+        #toast.show { visibility: visible; animation: fadein 0.5s, fadeout 0.5s 2.5s; }
         @keyframes fadein { from {bottom: 0; opacity: 0;} to {bottom: 30px; opacity: 1;} }
         @keyframes fadeout { from {bottom: 30px; opacity: 1;} to {bottom: 0; opacity: 0;} }
 
@@ -42,12 +25,27 @@
         .project-label { font-size: 0.7rem; text-transform: uppercase; color: #888; letter-spacing: 1px; display: block; margin-bottom: 5px; }
 
         .btn-group { display: flex; gap: 10px; }
-        .btn-share { background: var(--success); color: white; padding: 12px 20px; font-size: 0.9rem; border-radius: 6px; display: flex; align-items: center; gap: 8px; border: none; cursor: pointer; font-weight: bold; }
-        .btn-reset-proj { background: var(--danger); color: white; padding: 12px 20px; font-size: 0.9rem; border-radius: 6px; display: flex; align-items: center; gap: 8px; border: none; cursor: pointer; font-weight: bold; }
+        .btn-share { background: var(--success); color: white; padding: 12px 20px; font-size: 0.9rem; border-radius: 6px; border: none; cursor: pointer; font-weight: bold; }
+        .btn-reset-proj { background: var(--danger); color: white; padding: 12px 20px; font-size: 0.9rem; border-radius: 6px; border: none; cursor: pointer; font-weight: bold; }
 
         .notes-hero { max-width: 1040px; margin: 0 auto 20px auto; }
-        .dashboard { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; align-items: flex-start; }
-        .widget { background: #1a1a1a; border-radius: 12px; padding: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); border: 1px solid #444; width: 100%; max-width: 500px; margin-bottom: 20px; position: relative; box-sizing: border-box; }
+        
+        /* Dashboard Container */
+        .dashboard { 
+            display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; align-items: flex-start; 
+            max-width: 1040px; margin: 0 auto; 
+        }
+
+        /* Column wrapper to keep right-side widgets grouped */
+        .dash-col {
+            display: flex; flex-direction: column; gap: 20px; flex: 1 1 480px; max-width: 100%;
+        }
+
+        .widget { 
+            background: #1a1a1a; border-radius: 12px; padding: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); 
+            border: 1px solid #444; width: 100%; box-sizing: border-box; 
+        }
+
         .widget-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; padding-bottom: 10px; margin-bottom: 15px; }
         h2 { margin: 0; color: var(--wood); font-size: 1.1rem; text-transform: uppercase; }
 
@@ -66,6 +64,12 @@
         .precision-picker button.active { background: var(--success); color: white; }
 
         .layout-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 10px; }
+        
+        @media (max-width: 500px) {
+            .layout-grid { grid-template-columns: 1fr; }
+            body { padding: 10px; }
+        }
+
         .pad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
         button { border: none; border-radius: 4px; cursor: pointer; font-weight: bold; transition: 0.1s; }
         
@@ -103,11 +107,11 @@
 
 <div class="header-area">
     <div class="title-container">
-        <span class="project-label">Project Name (Auto-Saves Locally)</span>
+        <span class="project-label">Project Name (Auto-Saves)</span>
         <input type="text" id="project-title" class="project-title-input" placeholder="Untitled Project..." oninput="syncState()">
     </div>
     <div class="btn-group">
-        <button class="btn-reset-proj" onclick="resetFullProject()">🗑️ Reset Project</button>
+        <button class="btn-reset-proj" onclick="resetFullProject()">🗑️ Reset</button>
         <button class="btn-share" onclick="copyProjectLink()">🔗 Copy Link</button>
     </div>
 </div>
@@ -120,72 +124,74 @@
 </div>
 
 <div class="dashboard">
-    <div class="widget">
-        <div class="widget-header"><h2>Precision Calculator</h2></div>
-        <div class="global-settings">
-            <button class="btn-toggle" onclick="toggleDisplayMode()">🔄 Mode: <span id="mode-text">Fractional</span></button>
-            <label class="snap-control" style="margin-top:10px;">
-                <input type="checkbox" id="snap-toggle" onchange="toggleSnap()">
-                <span class="snap-label">Snap to Nearest Fraction</span>
-            </label>
-            <div id="prec-container" class="precision-picker disabled">
-                <button class="prec-btn" onclick="setPrecision(4)">1/4</button>
-                <button class="prec-btn" onclick="setPrecision(8)">1/8</button>
-                <button class="prec-btn active" onclick="setPrecision(16)">1/16</button>
-                <button class="prec-btn" onclick="setPrecision(32)">1/32</button>
-                <button class="prec-btn" onclick="setPrecision(64)">1/64</button>
-            </div>
-        </div>
-        <div class="display">
-            <div id="preview" class="res-input">0"</div>
-            <div id="total" class="res-total">0"</div>
-        </div>
-        <div class="layout-grid">
-            <div>
-                <div class="pad">
-                    <button class="btn-num" onclick="press('w', 7)">7</button><button class="btn-num" onclick="press('w', 8)">8</button><button class="btn-num" onclick="press('w', 9)">9</button>
-                    <button class="btn-num" onclick="press('w', 4)">4</button><button class="btn-num" onclick="press('w', 5)">5</button><button class="btn-num" onclick="press('w', 6)">6</button>
-                    <button class="btn-num" onclick="press('w', 1)">1</button><button class="btn-num" onclick="press('w', 2)">2</button><button class="btn-num" onclick="press('w', 3)">3</button>
-                    <button class="btn-num" onclick="press('w', '.')">.</button><button class="btn-num" onclick="press('w', 0)">0</button><button class="btn-clr" onclick="clearInput()">CE</button>
+    <div class="dash-col">
+        <div class="widget">
+            <div class="widget-header"><h2>Precision Calculator</h2></div>
+            <div class="global-settings">
+                <button class="btn-toggle" onclick="toggleDisplayMode()">🔄 Mode: <span id="mode-text">Fractional</span></button>
+                <label class="snap-control" style="margin-top:10px;">
+                    <input type="checkbox" id="snap-toggle" onchange="toggleSnap()">
+                    <span class="snap-label">Snap to Nearest Fraction</span>
+                </label>
+                <div id="prec-container" class="precision-picker disabled">
+                    <button class="prec-btn" onclick="setPrecision(4)">1/4</button>
+                    <button class="prec-btn" onclick="setPrecision(8)">1/8</button>
+                    <button class="prec-btn active" onclick="setPrecision(16)">1/16</button>
+                    <button class="prec-btn" onclick="setPrecision(32)">1/32</button>
+                    <button class="prec-btn" onclick="setPrecision(64)">1/64</button>
                 </div>
             </div>
-            <div>
-                <div class="pad">
-                    <button class="btn-num" onclick="press('n', 7)">7</button><button class="btn-num" onclick="press('n', 8)">8</button><button class="btn-num" onclick="press('n', 9)">9</button>
-                    <button class="btn-num" onclick="press('n', 4)">4</button><button class="btn-num" onclick="press('n', 5)">5</button><button class="btn-num" onclick="press('n', 6)">6</button>
-                    <button class="btn-num" onclick="press('n', 1)">1</button><button class="btn-num" onclick="press('n', 2)">2</button><button class="btn-num" onclick="press('n', 3)">3</button>
-                    <button class="btn-clr" style="grid-column: span 2" onclick="resetCalc()">RESET</button><button class="btn-num" onclick="press('n', 0)">0</button>
+            <div class="display">
+                <div id="preview" class="res-input">0"</div>
+                <div id="total" class="res-total">0"</div>
+            </div>
+            <div class="layout-grid">
+                <div>
+                    <div class="pad">
+                        <button class="btn-num" onclick="press('w', 7)">7</button><button class="btn-num" onclick="press('w', 8)">8</button><button class="btn-num" onclick="press('w', 9)">9</button>
+                        <button class="btn-num" onclick="press('w', 4)">4</button><button class="btn-num" onclick="press('w', 5)">5</button><button class="btn-num" onclick="press('w', 6)">6</button>
+                        <button class="btn-num" onclick="press('w', 1)">1</button><button class="btn-num" onclick="press('w', 2)">2</button><button class="btn-num" onclick="press('w', 3)">3</button>
+                        <button class="btn-num" onclick="press('w', '.')">.</button><button class="btn-num" onclick="press('w', 0)">0</button><button class="btn-clr" onclick="clearInput()">CE</button>
+                    </div>
+                </div>
+                <div>
+                    <div class="pad">
+                        <button class="btn-num" onclick="press('n', 7)">7</button><button class="btn-num" onclick="press('n', 8)">8</button><button class="btn-num" onclick="press('n', 9)">9</button>
+                        <button class="btn-num" onclick="press('n', 4)">4</button><button class="btn-num" onclick="press('n', 5)">5</button><button class="btn-num" onclick="press('n', 6)">6</button>
+                        <button class="btn-num" onclick="press('n', 1)">1</button><button class="btn-num" onclick="press('n', 2)">2</button><button class="btn-num" onclick="press('n', 3)">3</button>
+                        <button class="btn-clr" style="grid-column: span 2" onclick="resetCalc()">RESET</button><button class="btn-num" onclick="press('n', 0)">0</button>
+                    </div>
                 </div>
             </div>
-        </div>
-        <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:6px; margin-top:8px;">
-            <button class="btn-op" onclick="handleOp('add')">+</button><button class="btn-op" onclick="handleOp('sub')">-</button>
-            <button class="btn-op" onclick="handleOp('mul')">×</button><button class="btn-op" onclick="handleOp('div')">÷</button>
-        </div>
-        <div class="pad" style="margin-top:10px;">
-            <button class="btn-den" onclick="setDen(4)">/4</button><button class="btn-den" onclick="setDen(8)">/8</button><button class="btn-den" onclick="setDen(16)">/16</button>
-            <button class="btn-den" onclick="setDen(32)">/32</button><button class="btn-den" style="grid-column: span 2" onclick="setDen(64)">/64</button>
-        </div>
-        <div class="action-area">
-            <button class="btn-eq" onclick="finish()">TOTAL (=)</button>
-            <button class="btn-save" onclick="saveMeasurement()">💾 Save to Cut List</button>
-        </div>
+            <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:6px; margin-top:8px;">
+                <button class="btn-op" onclick="handleOp('add')">+</button><button class="btn-op" onclick="handleOp('sub')">-</button>
+                <button class="btn-op" onclick="handleOp('mul')">×</button><button class="btn-op" onclick="handleOp('div')">÷</button>
+            </div>
+            <div class="pad" style="margin-top:10px;">
+                <button class="btn-den" onclick="setDen(4)">/4</button><button class="btn-den" onclick="setDen(8)">/8</button><button class="btn-den" onclick="setDen(16)">/16</button>
+                <button class="btn-den" onclick="setDen(32)">/32</button><button class="btn-den" style="grid-column: span 2" onclick="setDen(64)">/64</button>
+            </div>
+            <div class="action-area">
+                <button class="btn-eq" onclick="finish()">TOTAL (=)</button>
+                <button class="btn-save" onclick="saveMeasurement()">💾 Save to Cut List</button>
+            </div>
 
-        <div style="margin-top:25px; border-top: 1px solid #333; padding-top:15px;">
-            <div class="widget-header"><h2>Saved Cut List</h2><button class="btn-clear-list" onclick="clearAllSaved()">Clear</button></div>
-            <table id="saved-list-table">
-                <thead><tr><th>Part Name</th><th>Measurement</th><th>Action</th></tr></thead>
-                <tbody id="saved-list-body"></tbody>
-            </table>
-        </div>
+            <div style="margin-top:25px; border-top: 1px solid #333; padding-top:15px;">
+                <div class="widget-header"><h2>Saved Cut List</h2><button class="btn-clear-list" onclick="clearAllSaved()">Clear</button></div>
+                <table id="saved-list-table">
+                    <thead><tr><th>Part Name</th><th>Measurement</th><th>Action</th></tr></thead>
+                    <tbody id="saved-list-body"></tbody>
+                </table>
+            </div>
 
-        <details class="history-section">
-            <summary class="history-summary">Calculation Tape</summary>
-            <div id="history-log" class="history-list"></div>
-        </details>
+            <details class="history-section">
+                <summary class="history-summary">Calculation Tape</summary>
+                <div id="history-log" class="history-list"></div>
+            </details>
+        </div>
     </div>
 
-    <div style="width: 100%; max-width: 500px;">
+    <div class="dash-col">
         <div class="widget">
             <div class="widget-header"><h2>Equal Spacing Layout</h2></div>
             <div class="l-field"><label>Total Length</label><input type="number" id="lay-length" value="24" oninput="calculateLayout()"></div>
@@ -203,7 +209,7 @@
         </div>
 
         <div class="widget">
-            <div class="widget-header"><h2>Board Foot Calc & Material</h2></div>
+            <div class="widget-header"><h2>Board Foot Calc</h2></div>
             <div class="l-field"><label>Thick (in)</label><input type="number" id="bf-thick" value="1" oninput="calculateBF()"></div>
             <div class="l-field"><label>Width (in)</label><input type="number" id="bf-width" value="6" oninput="calculateBF()"></div>
             <div class="l-field"><label>Length (ft)</label><input type="number" id="bf-length" value="8" oninput="calculateBF()"></div>
@@ -246,7 +252,7 @@
     }
 
     function resetFullProject() {
-        if(confirm("Are you sure? This clears all local data and your URL link.")) {
+        if(confirm("Are you sure? This clears everything.")) {
             localStorage.removeItem('shop_calc_last_project');
             window.location.hash = "";
             location.reload();
@@ -282,12 +288,7 @@
         setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
     }
 
-    function copyProjectLink() { 
-        syncState(); 
-        navigator.clipboard.writeText(window.location.href).then(() => {
-            showToast();
-        }); 
-    }
+    function copyProjectLink() { syncState(); navigator.clipboard.writeText(window.location.href).then(() => { showToast(); }); }
 
     function refreshUI() { updateDisplay(); updatePreview(); calculateLayout(); updateSavedList(); calculateBF(); updateMaterialList(); }
     function toggleSnap() { isSnapEnabled = document.getElementById('snap-toggle').checked; document.getElementById('prec-container').classList.toggle('disabled', !isSnapEnabled); syncState(); refreshUI(); }
