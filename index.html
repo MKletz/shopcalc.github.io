@@ -105,6 +105,8 @@
         .highlight { color: var(--wood); font-weight: bold; }
         .distinct { color: var(--success); font-weight: bold; }
         .btn-del-save { background: var(--danger); color: white; padding: 6px 10px; font-size: 0.75rem; border-radius: 4px; }
+        
+        .grand-total-row { background: #222; font-weight: bold; border-top: 2px solid #444; }
     </style>
 </head>
 <body>
@@ -117,7 +119,7 @@
         <input type="text" id="project-title" class="project-title-input" placeholder="Untitled Project..." oninput="syncState()">
     </div>
     <div class="btn-group">
-        <button class="btn-reset-proj" onclick="resetFullProject()">🗑️</button>
+        <button class="btn-reset-proj" onclick="resetFullProject()">🗑️ Reset</button>
         <button class="btn-share" onclick="copyProjectLink()">🔗 Copy</button>
     </div>
 </div>
@@ -229,7 +231,11 @@
             <button class="btn-save" style="margin-top:10px;" onclick="saveMaterial()">💾 Save Material</button>
             <div style="margin-top:20px; border-top: 1px solid #333; padding-top:15px;">
                 <div class="widget-header"><h2>Material List</h2><button class="btn-clear-list" onclick="clearAllMaterials()">Clear</button></div>
-                <table><tbody id="material-list-body"></tbody></table>
+                <table>
+                    <thead><tr><th>Name</th><th>BF</th><th>Cost</th><th>X</th></tr></thead>
+                    <tbody id="material-list-body"></tbody>
+                    <tfoot id="material-list-footer"></tfoot>
+                </table>
             </div>
         </div>
     </div>
@@ -358,10 +364,26 @@
     }
 
     function saveMaterial() { const name = prompt("Name:"); if(name) { const d = calculateBF(); savedMaterials.push({ name: name, bf: d.bf, cost: d.cost }); syncState(); updateMaterialList(); } }
+    
     function updateMaterialList() {
-        const body = document.getElementById('material-list-body'); body.innerHTML = '';
-        savedMaterials.forEach((m, i) => { body.innerHTML += `<tr><td>${m.name}</td><td>${m.bf.toFixed(2)}</td><td class="highlight">$${m.cost.toFixed(2)}</td><td><button class="btn-del-save" onclick="deleteMaterial(${i})">X</button></td></tr>`; });
+        const body = document.getElementById('material-list-body'); 
+        const footer = document.getElementById('material-list-footer');
+        body.innerHTML = ''; footer.innerHTML = '';
+        
+        let totalBF = 0;
+        let totalCost = 0;
+
+        savedMaterials.forEach((m, i) => { 
+            totalBF += m.bf;
+            totalCost += m.cost;
+            body.innerHTML += `<tr><td>${m.name}</td><td>${m.bf.toFixed(2)}</td><td class="highlight">$${m.cost.toFixed(2)}</td><td><button class="btn-del-save" onclick="deleteMaterial(${i})">X</button></td></tr>`; 
+        });
+
+        if (savedMaterials.length > 0) {
+            footer.innerHTML = `<tr class="grand-total-row"><td>TOTAL</td><td>${totalBF.toFixed(2)}</td><td class="distinct">$${totalCost.toFixed(2)}</td><td></td></tr>`;
+        }
     }
+
     function deleteMaterial(i) { savedMaterials.splice(i, 1); syncState(); updateMaterialList(); }
     function clearAllMaterials() { if(confirm("Clear?")){ savedMaterials = []; updateMaterialList(); } }
     window.onload = loadProject;
