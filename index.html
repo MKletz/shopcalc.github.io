@@ -38,7 +38,6 @@
         .btn-clr { background: #c0392b; color: white; }
         .btn-toggle { background: var(--decimal-blue); color: white; padding: 10px; font-size: 0.8rem; text-transform: uppercase; width: 100%; border-radius: 4px; }
         .btn-clear-list { background: transparent; border: 1px solid #c0392b; color: #c0392b; padding: 4px 8px; font-size: 0.65rem; text-transform: uppercase; border-radius: 4px; }
-        .btn-clear-list:hover { background: #c0392b; color: white; }
         
         .action-area { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
         .btn-eq { background: var(--success); color: white; padding: 15px; font-size: 1.4rem; width: 100%; }
@@ -51,11 +50,8 @@
         td { padding: 10px 8px; border-bottom: 1px solid #222; }
         .highlight { color: var(--wood); font-weight: bold; }
         .distinct { color: var(--success); font-weight: bold; }
-
-        .history-container { margin-top: 15px; }
-        .history-toggle { width: 100%; background: #444; color: #bbb; padding: 8px; font-size: 0.75rem; text-transform: uppercase; border-radius: 4px; cursor: pointer; text-align: center; }
-        .history { display: none; margin-top: 5px; background: #222; padding: 8px; border-radius: 4px; max-height: 120px; overflow-y: auto; font-family: monospace; font-size: 0.8rem; color: #777; border: 1px solid #333; }
-        .btn-del-save { background: #c0392b; color: white; padding: 4px 8px; font-size: 0.7rem; }
+        
+        .bf-result { background: #000; padding: 15px; border-radius: 6px; margin-top: 15px; border-left: 4px solid var(--success); }
     </style>
 </head>
 <body>
@@ -63,7 +59,6 @@
 <div class="dashboard">
     <div class="widget">
         <div class="widget-header"><h2>Precision Calculator</h2></div>
-        
         <div class="global-settings">
             <button class="btn-toggle" onclick="toggleDisplayMode()" style="margin-bottom: 12px;">🔄 Mode: <span id="mode-text">Fractional</span></button>
             <label class="snap-control">
@@ -78,12 +73,10 @@
                 <button class="prec-btn" onclick="setPrecision(64)">1/64</button>
             </div>
         </div>
-
         <div class="display">
             <div id="preview" class="res-input">0"</div>
             <div id="total" class="res-total">0"</div>
         </div>
-
         <div class="layout-grid">
             <div>
                 <div class="pad">
@@ -107,7 +100,6 @@
                     <button class="btn-op" onclick="handleOp('div')">÷</button>
                 </div>
             </div>
-
             <div>
                 <div class="pad">
                     <button class="btn-num" onclick="press('n', 7)">7</button>
@@ -131,279 +123,122 @@
                 </div>
             </div>
         </div>
-        
         <div class="action-area">
             <button class="btn-eq" onclick="finish()">TOTAL (=)</button>
             <button class="btn-save" onclick="saveMeasurement()">💾 Save to Cut List</button>
-        </div>
-        
-        <div class="history-container">
-            <div class="history-toggle" onclick="toggleHistory()">📋 View Calculation History</div>
-            <div class="history" id="history-log">History: Ready</div>
         </div>
     </div>
 
     <div style="width: 100%; max-width: 500px;">
         <div class="widget">
             <div class="widget-header">
-                <h2>Saved Measurements (Cut List)</h2>
+                <h2>Saved Measurements</h2>
                 <button class="btn-clear-list" onclick="clearAllSaved()">Clear All</button>
             </div>
             <table id="saved-list-table">
-                <thead>
-                    <tr>
-                        <th>Part Name</th>
-                        <th>Measurement</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
+                <thead><tr><th>Part Name</th><th>Measurement</th><th>Action</th></tr></thead>
                 <tbody id="saved-list-body"></tbody>
             </table>
         </div>
 
         <div class="widget">
             <div class="widget-header"><h2>Equal Spacing Layout</h2></div>
-            <div class="l-field">
-                <label>Total Length (in)</label>
-                <input type="number" id="lay-length" value="24" step="0.0625" oninput="calculateLayout()">
-            </div>
-            
-            <div class="l-field">
-                <label style="font-size: 0.8rem; color: #888;">Mirror Offsets</label>
-                <input type="checkbox" id="lay-mirror" checked onchange="toggleMirrorUI()">
-            </div>
-
-            <div id="mirror-input-container" class="l-field">
-                <label>Edge Offset (in)</label>
-                <input type="number" id="lay-offset-mirror" value="1" step="0.0625" oninput="calculateLayout()">
-            </div>
-
+            <div class="l-field"><label>Total Length (in)</label><input type="number" id="lay-length" value="24" oninput="calculateLayout()"></div>
+            <div class="l-field"><label style="font-size: 0.8rem; color: #888;">Mirror Offsets</label><input type="checkbox" id="lay-mirror" checked onchange="toggleMirrorUI()"></div>
+            <div id="mirror-input-container" class="l-field"><label>Edge Offset (in)</label><input type="number" id="lay-offset-mirror" value="1" oninput="calculateLayout()"></div>
             <div id="split-input-container" style="display: none;">
-                <div class="l-field">
-                    <label>Start Offset (in)</label>
-                    <input type="number" id="lay-offset-start" value="1" step="0.0625" oninput="calculateLayout()">
-                </div>
-                <div class="l-field">
-                    <label>End Offset (in)</label>
-                    <input type="number" id="lay-offset-end" value="1" step="0.0625" oninput="calculateLayout()">
-                </div>
+                <div class="l-field"><label>Start Offset (in)</label><input type="number" id="lay-offset-start" value="1" oninput="calculateLayout()"></div>
+                <div class="l-field"><label>End Offset (in)</label><input type="number" id="lay-offset-end" value="1" oninput="calculateLayout()"></div>
             </div>
-
-            <div class="l-field">
-                <label>Number of Holes</label>
-                <input type="number" id="lay-count" value="3" oninput="calculateLayout()">
-            </div>
-
-            <div id="layout-summary" style="background:#000; padding:10px; border-radius:4px; font-size:0.85rem; color:#888; margin:15px 0;">
-                Spacing...
-            </div>
+            <div class="l-field"><label>Number of Holes</label><input type="number" id="lay-count" value="3" oninput="calculateLayout()"></div>
             <table>
-                <thead>
-                    <tr>
-                        <th>Mark #</th>
-                        <th>From Edge (Center)</th>
-                        <th>C-to-C Gap</th>
-                    </tr>
-                </thead>
+                <thead><tr><th>Mark #</th><th>Position</th><th>Gap</th></tr></thead>
                 <tbody id="layout-table-body"></tbody>
             </table>
+        </div>
+
+        <div class="widget">
+            <div class="widget-header"><h2>Board Foot Calculator</h2></div>
+            <div class="l-field"><label>Thickness (in)</label><input type="number" id="bf-thick" value="1" step="0.25" oninput="calculateBF()"></div>
+            <div class="l-field"><label>Width (in)</label><input type="number" id="bf-width" value="6" step="0.125" oninput="calculateBF()"></div>
+            <div class="l-field"><label>Length (ft)</label><input type="number" id="bf-length" value="8" step="0.125" oninput="calculateBF()"></div>
+            <div class="l-field"><label>Cost / BF ($)</label><input type="number" id="bf-cost" value="5.50" step="0.10" oninput="calculateBF()"></div>
+            <div class="l-field"><label>Quantity</label><input type="number" id="bf-qty" value="1" oninput="calculateBF()"></div>
+            
+            <div class="bf-result">
+                <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                    <span>Board Feet:</span>
+                    <span id="res-bf-val" class="distinct">0.00 BF</span>
+                </div>
+                <div style="display:flex; justify-content:space-between; font-size:1.2rem;">
+                    <span>Total Cost:</span>
+                    <span id="res-bf-cost" class="highlight">$0.00</span>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
 <script>
-    let totalValue = 0;
-    let inputW = "0"; let inputN = "0"; let inputD = 1;
-    let nextOp = 'add'; 
-    let displayMode = 'fraction'; 
-    let roundingDenominator = 16;
-    let isSnapEnabled = false; 
-    let isFirstEntry = true;
-    let savedMeasurements = [];
+    let totalValue = 0; let inputW = "0"; let inputN = "0"; let inputD = 1;
+    let nextOp = 'add'; let displayMode = 'fraction'; let roundingDenominator = 16;
+    let isSnapEnabled = false; let isFirstEntry = true; let savedMeasurements = [];
+    const ops = { add: { sym: '+', fn: (a, b) => a + b }, sub: { sym: '-', fn: (a, b) => a - b }, mul: { sym: '×', fn: (a, b) => a * b }, div: { sym: '÷', fn: (a, b) => b === 0 ? a : a / b } };
 
-    const ops = { 
-        add: { sym: '+', fn: (a, b) => a + b }, 
-        sub: { sym: '-', fn: (a, b) => a - b }, 
-        mul: { sym: '×', fn: (a, b) => a * b }, 
-        div: { sym: '÷', fn: (a, b) => b === 0 ? a : a / b } 
-    };
-
-    // HISTORY & MODES
-    function toggleHistory() {
-        const log = document.getElementById('history-log');
-        const toggle = document.querySelector('.history-toggle');
-        const isVisible = log.style.display === 'block';
-        log.style.display = isVisible ? 'none' : 'block';
-        toggle.innerText = isVisible ? '📋 View Calculation History' : '❌ Close History';
-    }
-
-    function toggleSnap() {
-        isSnapEnabled = document.getElementById('snap-toggle').checked;
-        document.getElementById('prec-container').classList.toggle('disabled', !isSnapEnabled);
-        refreshUI();
-    }
-
-    function setPrecision(d) {
-        roundingDenominator = d;
-        document.querySelectorAll('.prec-btn').forEach(btn => {
-            btn.classList.toggle('active', parseInt(btn.innerText.split('/')[1]) === d);
-        });
-        refreshUI();
-    }
-
-    function toggleDisplayMode() {
-        displayMode = displayMode === 'fraction' ? 'decimal' : 'fraction';
-        document.getElementById('mode-text').innerText = displayMode.charAt(0).toUpperCase() + displayMode.slice(1);
-        refreshUI();
-    }
-
-    function refreshUI() {
-        updateDisplay(); updatePreview(); calculateLayout(); updateSavedList();
-    }
-
-    // MATH HELPERS
+    function toggleSnap() { isSnapEnabled = document.getElementById('snap-toggle').checked; document.getElementById('prec-container').classList.toggle('disabled', !isSnapEnabled); refreshUI(); }
+    function setPrecision(d) { roundingDenominator = d; document.querySelectorAll('.prec-btn').forEach(b => b.classList.toggle('active', b.innerText.includes(d))); refreshUI(); }
+    function toggleDisplayMode() { displayMode = displayMode === 'fraction' ? 'decimal' : 'fraction'; document.getElementById('mode-text').innerText = displayMode; refreshUI(); }
+    function refreshUI() { updateDisplay(); updatePreview(); calculateLayout(); updateSavedList(); calculateBF(); }
     function gcd(a, b) { return b ? gcd(b, a % b) : a; }
-
     function formatResult(val) {
         if (displayMode === 'decimal') return val.toFixed(4) + '"';
-        const sign = val < 0 ? "-" : "";
-        const absVal = Math.abs(val);
-        const w = Math.floor(absVal);
-        const rem = absVal - w;
-        let numerator, denominator;
-        if (isSnapEnabled) {
-            const units = Math.round(rem * roundingDenominator);
-            if (units === 0) return `${sign}${w}"`;
-            if (units === roundingDenominator) return `${sign}${w + 1}"`;
-            numerator = units; denominator = roundingDenominator;
-        } else {
-            const sixtyFourths = Math.round(rem * 64);
-            if (sixtyFourths === 0) return `${sign}${w}"`;
-            if (sixtyFourths === 64) return `${sign}${w + 1}"`;
-            numerator = sixtyFourths; denominator = 64;
-        }
-        const common = gcd(numerator, denominator);
-        return `${sign}${w > 0 ? w + ' ' : ''}${numerator/common}/${denominator/common}"`;
+        const absVal = Math.abs(val); const w = Math.floor(absVal); const rem = absVal - w;
+        let n, d;
+        if (isSnapEnabled) { n = Math.round(rem * roundingDenominator); d = roundingDenominator; } else { n = Math.round(rem * 64); d = 64; }
+        if (n === 0) return `${val < 0 ? '-' : ''}${w}"`;
+        if (n === d) return `${val < 0 ? '-' : ''}${w + 1}"`;
+        const c = gcd(n, d); return `${val < 0 ? '-' : ''}${w > 0 ? w + ' ' : ''}${n/c}/${d/c}"`;
     }
-
-    // CALCULATOR LOGIC
-    function press(type, val) {
-        if (type === 'w') {
-            if (val === '.' && inputW.includes('.')) return;
-            inputW = inputW === "0" && val !== '.' ? val.toString() : inputW + val;
-        } else {
-            inputN = inputN === "0" ? val.toString() : inputN + val;
-        }
-        updatePreview();
-    }
+    function press(t, v) { if(t==='w'){ if(v==='.' && inputW.includes('.')) return; inputW = inputW === "0" && v !== '.' ? v.toString() : inputW + v; } else { inputN = inputN === "0" ? v.toString() : inputN + v; } updatePreview(); }
     function setDen(d) { inputD = d; updatePreview(); }
     function getCurrentIn() { return (parseFloat(inputW)||0) + ((parseInt(inputN)||0)/inputD); }
-    
-    function handleOp(opKey) {
-        const cur = getCurrentIn();
-        if (isFirstEntry) {
-            totalValue = cur;
-            logHistory(`Start: ${formatResult(cur)}`);
-            isFirstEntry = false;
-        } else {
-            logHistory(`${ops[nextOp].sym} ${formatResult(cur)}`);
-            totalValue = ops[nextOp].fn(totalValue, cur);
-        }
-        nextOp = opKey; clearInput(); updateDisplay();
-    }
-
-    function finish() {
-        const cur = getCurrentIn();
-        if (isFirstEntry) {
-            totalValue = cur;
-            logHistory(`Start: ${formatResult(cur)}`);
-            isFirstEntry = false;
-        } else if (cur !== 0 || inputW !== "0") {
-            logHistory(`${ops[nextOp].sym} ${formatResult(cur)}`);
-            totalValue = ops[nextOp].fn(totalValue, cur);
-        }
-        updateDisplay();
-        logHistory(`<strong>= ${formatResult(totalValue)}</strong>`);
-        clearInput();
-        nextOp = 'add';
-    }
-
-    // SAVED LIST
-    function saveMeasurement() {
-        if (totalValue === 0 && isFirstEntry) return;
-        const partName = prompt("Enter a name:", "Part " + (savedMeasurements.length + 1));
-        if (partName) {
-            savedMeasurements.push({ name: partName, value: totalValue });
-            updateSavedList();
-        }
-    }
-
-    function updateSavedList() {
-        const tbody = document.getElementById('saved-list-body');
-        tbody.innerHTML = '';
-        savedMeasurements.forEach((item, index) => {
-            tbody.innerHTML += `<tr><td>${item.name}</td><td class="highlight">${formatResult(item.value)}</td><td><button class="btn-del-save" onclick="deleteSave(${index})">Delete</button></td></tr>`;
-        });
-    }
-
+    function handleOp(k) { const c = getCurrentIn(); if(isFirstEntry){ totalValue = c; isFirstEntry = false; } else { totalValue = ops[nextOp].fn(totalValue, c); } nextOp = k; clearInput(); updateDisplay(); }
+    function finish() { const c = getCurrentIn(); if(!isFirstEntry) totalValue = ops[nextOp].fn(totalValue, c); else totalValue = c; isFirstEntry = false; updateDisplay(); clearInput(); nextOp = 'add'; }
+    function saveMeasurement() { const n = prompt("Name:"); if(n){ savedMeasurements.push({name:n, value:totalValue}); updateSavedList(); } }
+    function updateSavedList() { const b = document.getElementById('saved-list-body'); b.innerHTML = ''; savedMeasurements.forEach((m, i) => { b.innerHTML += `<tr><td>${m.name}</td><td class="highlight">${formatResult(m.value)}</td><td><button class="btn-del-save" onclick="deleteSave(${i})">X</button></td></tr>`; }); }
     function deleteSave(i) { savedMeasurements.splice(i, 1); updateSavedList(); }
-    function clearAllSaved() { if (confirm("Clear all?")) { savedMeasurements = []; updateSavedList(); } }
-
+    function clearAllSaved() { if(confirm("Clear?")){ savedMeasurements = []; updateSavedList(); } }
     function updatePreview() { document.getElementById('preview').innerText = `${ops[nextOp].sym} ${formatResult(getCurrentIn())}`; }
     function updateDisplay() { document.getElementById('total').innerText = formatResult(totalValue); }
     function clearInput() { inputW = "0"; inputN = "0"; inputD = 1; updatePreview(); }
-    function reset() { totalValue = 0; nextOp = 'add'; isFirstEntry = true; clearInput(); updateDisplay(); document.getElementById('history-log').innerHTML = "History: Ready"; }
-    function logHistory(msg) { const log = document.getElementById('history-log'); log.innerHTML += `<div>${msg}</div>`; log.scrollTop = log.scrollHeight; }
+    function reset() { totalValue = 0; isFirstEntry = true; clearInput(); updateDisplay(); }
 
-    // LAYOUT WIDGET LOGIC
-    function toggleMirrorUI() {
-        const isMirrored = document.getElementById('lay-mirror').checked;
-        document.getElementById('mirror-input-container').style.display = isMirrored ? 'flex' : 'none';
-        document.getElementById('split-input-container').style.display = isMirrored ? 'none' : 'block';
-        calculateLayout();
-    }
-
+    function toggleMirrorUI() { const m = document.getElementById('lay-mirror').checked; document.getElementById('mirror-input-container').style.display = m ? 'flex' : 'none'; document.getElementById('split-input-container').style.display = m ? 'none' : 'block'; calculateLayout(); }
     function calculateLayout() {
-        const L = parseFloat(document.getElementById('lay-length').value) || 0;
-        const n = parseInt(document.getElementById('lay-count').value) || 0;
-        const isMirrored = document.getElementById('lay-mirror').checked;
-        
-        let sOff, eOff;
-        if (isMirrored) {
-            sOff = eOff = parseFloat(document.getElementById('lay-offset-mirror').value) || 0;
-        } else {
-            sOff = parseFloat(document.getElementById('lay-offset-start').value) || 0;
-            eOff = parseFloat(document.getElementById('lay-offset-end').value) || 0;
-        }
-
-        const tbody = document.getElementById('layout-table-body');
-        const summary = document.getElementById('layout-summary');
-        tbody.innerHTML = '';
-
-        if (L <= 0 || n <= 0) return;
-
-        const usableLength = L - sOff - eOff;
-        if (usableLength < 0 && n > 1) {
-            summary.innerHTML = `<span style="color:#c0392b">Offsets exceed total length.</span>`;
-            return;
-        }
-
-        const centerSpacing = n > 1 ? usableLength / (n - 1) : 0;
-        summary.innerHTML = n === 1 ? `Hole centered at <span class="highlight">${formatResult(L/2)}</span>` : `Inner Gap: <span class="highlight">${formatResult(centerSpacing)}</span>`;
-
-        for (let i = 0; i < n; i++) {
-            const pos = n === 1 ? L / 2 : sOff + (centerSpacing * i);
-            const isDistinct = (i === 0 || i === n - 1);
-            tbody.innerHTML += `
-                <tr>
-                    <td>Mark ${i+1}</td>
-                    <td class="${isDistinct ? 'distinct' : 'highlight'}">${formatResult(pos)}</td>
-                    <td>${i === 0 ? 'Start' : formatResult(centerSpacing)}</td>
-                </tr>`;
-        }
+        const L = parseFloat(document.getElementById('lay-length').value) || 0; const n = parseInt(document.getElementById('lay-count').value) || 0; const m = document.getElementById('lay-mirror').checked;
+        let sOff = m ? parseFloat(document.getElementById('lay-offset-mirror').value)||0 : parseFloat(document.getElementById('lay-offset-start').value)||0;
+        let eOff = m ? sOff : parseFloat(document.getElementById('lay-offset-end').value)||0;
+        const b = document.getElementById('layout-table-body'); b.innerHTML = ''; if (L <= 0 || n <= 0) return;
+        const use = L - sOff - eOff; const gap = n > 1 ? use / (n - 1) : 0;
+        for (let i = 0; i < n; i++) { const pos = sOff + (gap * i); b.innerHTML += `<tr><td>${i+1}</td><td class="${(i===0||i===n-1)?'distinct':'highlight'}">${formatResult(pos)}</td><td>${formatResult(gap)}</td></tr>`; }
     }
-    
+
+    function calculateBF() {
+        const t = parseFloat(document.getElementById('bf-thick').value) || 0;
+        const w = parseFloat(document.getElementById('bf-width').value) || 0;
+        const l = parseFloat(document.getElementById('bf-length').value) || 0;
+        const c = parseFloat(document.getElementById('bf-cost').value) || 0;
+        const q = parseFloat(document.getElementById('bf-qty').value) || 1;
+        
+        const totalBF = ((t * w * l) / 12) * q;
+        const totalCost = totalBF * c;
+        
+        document.getElementById('res-bf-val').innerText = totalBF.toFixed(2) + " BF";
+        document.getElementById('res-bf-cost').innerText = "$" + totalCost.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    }
+
     calculateLayout();
+    calculateBF();
 </script>
 </body>
 </html>
