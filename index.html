@@ -37,7 +37,6 @@
         .btn-clr { background: #c0392b; color: white; }
         .btn-toggle { background: var(--decimal-blue); color: white; padding: 10px; font-size: 0.8rem; text-transform: uppercase; width: 100%; border-radius: 4px; }
         
-        /* Fixed Action Button Layout */
         .action-area { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
         .btn-eq { background: var(--success); color: white; padding: 15px; font-size: 1.4rem; width: 100%; }
         .btn-save { background: var(--purple); color: white; padding: 12px; font-size: 1.1rem; text-transform: uppercase; width: 100%; }
@@ -136,6 +135,20 @@
 
     <div style="width: 100%; max-width: 500px;">
         <div class="widget">
+            <h2>Saved Measurements (Cut List)</h2>
+            <table id="saved-list-table">
+                <thead>
+                    <tr>
+                        <th>Part Name</th>
+                        <th>Measurement</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="saved-list-body"></tbody>
+            </table>
+        </div>
+
+        <div class="widget">
             <h2>Equal Spacing Layout</h2>
             <div class="l-field">
                 <label>Total Length (in)</label>
@@ -161,20 +174,6 @@
                     </tr>
                 </thead>
                 <tbody id="layout-table-body"></tbody>
-            </table>
-        </div>
-
-        <div class="widget">
-            <h2>Saved Measurements (Cut List)</h2>
-            <table id="saved-list-table">
-                <thead>
-                    <tr>
-                        <th>Part Name</th>
-                        <th>Measurement</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody id="saved-list-body"></tbody>
             </table>
         </div>
     </div>
