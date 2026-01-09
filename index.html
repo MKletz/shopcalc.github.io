@@ -9,7 +9,7 @@
         body { font-family: 'Segoe UI', sans-serif; background: #333; color: white; margin: 0; padding: 20px; }
         
         .dashboard { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; align-items: flex-start; }
-        .widget { background: #1a1a1a; border-radius: 12px; padding: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); border: 1px solid #444; width: 100%; max-width: 500px; margin-bottom: 20px; }
+        .widget { background: #1a1a1a; border-radius: 12px; padding: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); border: 1px solid #444; width: 100%; max-width: 500px; margin-bottom: 20px; position: relative; }
         .widget-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; padding-bottom: 10px; margin-bottom: 15px; }
         h2 { margin: 0; color: var(--wood); font-size: 1.1rem; text-transform: uppercase; }
 
@@ -38,7 +38,8 @@
         .btn-clr { background: var(--danger); color: white; }
         .btn-toggle { background: var(--decimal-blue); color: white; padding: 10px; font-size: 0.8rem; text-transform: uppercase; width: 100%; border-radius: 4px; }
         .btn-clear-list { background: transparent; border: 1px solid var(--danger); color: var(--danger); padding: 4px 8px; font-size: 0.65rem; text-transform: uppercase; border-radius: 4px; }
-        
+        .btn-share { background: var(--success); color: white; padding: 8px 15px; font-size: 0.8rem; margin-bottom: 20px; }
+
         .action-area { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
         .btn-eq { background: var(--success); color: white; padding: 15px; font-size: 1.4rem; width: 100%; }
         .btn-save { background: var(--purple); color: white; padding: 12px; font-size: 1.1rem; text-transform: uppercase; width: 100%; }
@@ -58,6 +59,10 @@
     </style>
 </head>
 <body>
+
+<div style="text-align: center;">
+    <button class="btn-share" onclick="copyProjectLink()">🔗 Copy Project Share Link</button>
+</div>
 
 <div class="dashboard">
     <div class="widget">
@@ -110,7 +115,7 @@
             <button class="btn-eq" onclick="finish()">TOTAL (=)</button>
             <button class="btn-save" onclick="saveMeasurement()">💾 Save to Cut List</button>
         </div>
-        <div id="share-status">Project Saved to URL!</div>
+        <div id="share-status">URL Sync Active</div>
     </div>
 
     <div style="width: 100%; max-width: 500px;">
@@ -168,7 +173,6 @@
 
     const ops = { add: { sym: '+', fn: (a, b) => a + b }, sub: { sym: '-', fn: (a, b) => a - b }, mul: { sym: '×', fn: (a, b) => a * b }, div: { sym: '÷', fn: (a, b) => b === 0 ? a : a / b } };
 
-    // SYNC LOGIC
     function syncToUrl() {
         const state = {
             m: savedMeasurements,
@@ -185,8 +189,13 @@
         };
         const hash = btoa(JSON.stringify(state));
         window.history.replaceState(null, null, "#" + hash);
-        const status = document.getElementById('share-status');
-        status.style.opacity = 1; setTimeout(() => status.style.opacity = 0, 1000);
+    }
+
+    function copyProjectLink() {
+        syncToUrl();
+        navigator.clipboard.writeText(window.location.href).then(() => {
+            alert("Project link copied to clipboard!");
+        });
     }
 
     function loadFromUrl() {
@@ -216,13 +225,7 @@
         } catch (e) { console.error("Load failed", e); }
     }
 
-    // CORE REFRESH
-    function refreshUI() { 
-        updateDisplay(); updatePreview(); calculateLayout(); 
-        updateSavedList(); calculateBF(); updateMaterialList(); 
-    }
-
-    // CALCULATOR FUNCTIONS
+    function refreshUI() { updateDisplay(); updatePreview(); calculateLayout(); updateSavedList(); calculateBF(); updateMaterialList(); }
     function toggleSnap() { isSnapEnabled = document.getElementById('snap-toggle').checked; document.getElementById('prec-container').classList.toggle('disabled', !isSnapEnabled); syncToUrl(); refreshUI(); }
     function setPrecision(d) { roundingDenominator = d; document.querySelectorAll('.prec-btn').forEach(b => b.classList.toggle('active', b.innerText.includes(d))); syncToUrl(); refreshUI(); }
     function toggleDisplayMode() { displayMode = displayMode === 'fraction' ? 'decimal' : 'fraction'; document.getElementById('mode-text').innerText = displayMode.charAt(0).toUpperCase() + displayMode.slice(1); syncToUrl(); refreshUI(); }
@@ -250,7 +253,6 @@
     function clearInput() { inputW = "0"; inputN = "0"; inputD = 1; updatePreview(); }
     function reset() { totalValue = 0; isFirstEntry = true; clearInput(); updateDisplay(); }
 
-    // LAYOUT FUNCTIONS
     function toggleMirrorUI() { const m = document.getElementById('lay-mirror').checked; document.getElementById('mirror-input-container').style.display = m ? 'flex' : 'none'; document.getElementById('split-input-container').style.display = m ? 'none' : 'block'; calculateLayout(); syncToUrl(); }
     function calculateLayout() {
         const L = parseFloat(document.getElementById('lay-length').value) || 0, n = parseInt(document.getElementById('lay-count').value) || 0, m = document.getElementById('lay-mirror').checked;
@@ -258,10 +260,12 @@
         let eOff = m ? sOff : parseFloat(document.getElementById('lay-offset-end').value)||0;
         const b = document.getElementById('layout-table-body'); b.innerHTML = ''; if (L <= 0 || n <= 0) return;
         const use = L - sOff - eOff, gap = n > 1 ? use / (n - 1) : 0;
-        for (let i = 0; i < n; i++) { b.innerHTML += `<tr><td>${i+1}</td><td class="highlight">${formatResult(sOff + (gap * i))}</td><td>${formatResult(gap)}</td></tr>`; }
+        for (let i = 0; i < n; i++) { 
+            const isBound = (i === 0 || i === n - 1);
+            b.innerHTML += `<tr><td>${i+1}</td><td class="${isBound ? 'distinct' : 'highlight'}">${formatResult(sOff + (gap * i))}</td><td>${formatResult(gap)}</td></tr>`; 
+        }
     }
 
-    // BF & MATERIAL FUNCTIONS
     function calculateBF() {
         const t = parseFloat(document.getElementById('bf-thick').value)||0, w = parseFloat(document.getElementById('bf-width').value)||0, l = parseFloat(document.getElementById('bf-length').value)||0, c = parseFloat(document.getElementById('bf-cost').value)||0, q = parseFloat(document.getElementById('bf-qty').value)||1;
         const currentBF = ((t * w * l) / 12) * q, currentCost = currentBF * c;
@@ -283,7 +287,6 @@
     function deleteMaterial(i) { savedMaterials.splice(i, 1); syncToUrl(); updateMaterialList(); }
     function clearAllMaterials() { if(confirm("Clear?")){ savedMaterials = []; syncToUrl(); updateMaterialList(); } }
 
-    // INIT
     window.onload = loadFromUrl;
     calculateLayout();
     calculateBF();
