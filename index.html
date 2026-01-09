@@ -52,10 +52,7 @@
         .distinct { color: var(--success); font-weight: bold; }
         
         .bf-result { background: #000; padding: 15px; border-radius: 6px; margin-top: 15px; border-left: 4px solid var(--success); }
-        
-        /* UPDATED DELETE BUTTON STYLE */
         .btn-del-save { background: var(--danger); color: white; padding: 6px 10px; font-size: 0.75rem; border-radius: 4px; }
-        .btn-del-save:hover { background: #ff4d4d; }
     </style>
 </head>
 <body>
@@ -84,46 +81,26 @@
         <div class="layout-grid">
             <div>
                 <div class="pad">
-                    <button class="btn-num" onclick="press('w', 7)">7</button>
-                    <button class="btn-num" onclick="press('w', 8)">8</button>
-                    <button class="btn-num" onclick="press('w', 9)">9</button>
-                    <button class="btn-num" onclick="press('w', 4)">4</button>
-                    <button class="btn-num" onclick="press('w', 5)">5</button>
-                    <button class="btn-num" onclick="press('w', 6)">6</button>
-                    <button class="btn-num" onclick="press('w', 1)">1</button>
-                    <button class="btn-num" onclick="press('w', 2)">2</button>
-                    <button class="btn-num" onclick="press('w', 3)">3</button>
-                    <button class="btn-num" onclick="press('w', '.')">.</button>
-                    <button class="btn-num" onclick="press('w', 0)">0</button>
-                    <button class="btn-clr" onclick="clearInput()">CE</button>
+                    <button class="btn-num" onclick="press('w', 7)">7</button><button class="btn-num" onclick="press('w', 8)">8</button><button class="btn-num" onclick="press('w', 9)">9</button>
+                    <button class="btn-num" onclick="press('w', 4)">4</button><button class="btn-num" onclick="press('w', 5)">5</button><button class="btn-num" onclick="press('w', 6)">6</button>
+                    <button class="btn-num" onclick="press('w', 1)">1</button><button class="btn-num" onclick="press('w', 2)">2</button><button class="btn-num" onclick="press('w', 3)">3</button>
+                    <button class="btn-num" onclick="press('w', '.')">.</button><button class="btn-num" onclick="press('w', 0)">0</button><button class="btn-clr" onclick="clearInput()">CE</button>
                 </div>
                 <div style="display:grid; grid-template-columns: repeat(2, 1fr); gap:6px; margin-top:8px;">
-                    <button class="btn-op" onclick="handleOp('add')">+</button>
-                    <button class="btn-op" onclick="handleOp('sub')">-</button>
-                    <button class="btn-op" onclick="handleOp('mul')">×</button>
-                    <button class="btn-op" onclick="handleOp('div')">÷</button>
+                    <button class="btn-op" onclick="handleOp('add')">+</button><button class="btn-op" onclick="handleOp('sub')">-</button>
+                    <button class="btn-op" onclick="handleOp('mul')">×</button><button class="btn-op" onclick="handleOp('div')">÷</button>
                 </div>
             </div>
             <div>
                 <div class="pad">
-                    <button class="btn-num" onclick="press('n', 7)">7</button>
-                    <button class="btn-num" onclick="press('n', 8)">8</button>
-                    <button class="btn-num" onclick="press('n', 9)">9</button>
-                    <button class="btn-num" onclick="press('n', 4)">4</button>
-                    <button class="btn-num" onclick="press('n', 5)">5</button>
-                    <button class="btn-num" onclick="press('n', 6)">6</button>
-                    <button class="btn-num" onclick="press('n', 1)">1</button>
-                    <button class="btn-num" onclick="press('n', 2)">2</button>
-                    <button class="btn-num" onclick="press('n', 3)">3</button>
-                    <button class="btn-clr" style="grid-column: span 2" onclick="reset()">RESET</button>
-                    <button class="btn-num" onclick="press('n', 0)">0</button>
+                    <button class="btn-num" onclick="press('n', 7)">7</button><button class="btn-num" onclick="press('n', 8)">8</button><button class="btn-num" onclick="press('n', 9)">9</button>
+                    <button class="btn-num" onclick="press('n', 4)">4</button><button class="btn-num" onclick="press('n', 5)">5</button><button class="btn-num" onclick="press('n', 6)">6</button>
+                    <button class="btn-num" onclick="press('n', 1)">1</button><button class="btn-num" onclick="press('n', 2)">2</button><button class="btn-num" onclick="press('n', 3)">3</button>
+                    <button class="btn-clr" style="grid-column: span 2" onclick="reset()">RESET</button><button class="btn-num" onclick="press('n', 0)">0</button>
                 </div>
                 <div class="pad" style="margin-top:10px;">
-                    <button class="btn-den" onclick="setDen(4)">/4</button>
-                    <button class="btn-den" onclick="setDen(8)">/8</button>
-                    <button class="btn-den" onclick="setDen(16)">/16</button>
-                    <button class="btn-den" onclick="setDen(32)">/32</button>
-                    <button class="btn-den" style="grid-column: span 2" onclick="setDen(64)">/64</button>
+                    <button class="btn-den" onclick="setDen(4)">/4</button><button class="btn-den" onclick="setDen(8)">/8</button><button class="btn-den" onclick="setDen(16)">/16</button>
+                    <button class="btn-den" onclick="setDen(32)">/32</button><button class="btn-den" style="grid-column: span 2" onclick="setDen(64)">/64</button>
                 </div>
             </div>
         </div>
@@ -135,10 +112,7 @@
 
     <div style="width: 100%; max-width: 500px;">
         <div class="widget">
-            <div class="widget-header">
-                <h2>Saved Measurements</h2>
-                <button class="btn-clear-list" onclick="clearAllSaved()">Clear All</button>
-            </div>
+            <div class="widget-header"><h2>Saved Measurements</h2><button class="btn-clear-list" onclick="clearAllSaved()">Clear All</button></div>
             <table id="saved-list-table">
                 <thead><tr><th>Part Name</th><th>Measurement</th><th>Action</th></tr></thead>
                 <tbody id="saved-list-body"></tbody>
@@ -163,21 +137,32 @@
 
         <div class="widget">
             <div class="widget-header"><h2>Board Foot Calculator</h2></div>
-            <div class="l-field"><label>Thickness (in)</label><input type="number" id="bf-thick" value="1" step="0.25" oninput="calculateBF()"></div>
-            <div class="l-field"><label>Width (in)</label><input type="number" id="bf-width" value="6" step="0.125" oninput="calculateBF()"></div>
-            <div class="l-field"><label>Length (ft)</label><input type="number" id="bf-length" value="8" step="0.125" oninput="calculateBF()"></div>
-            <div class="l-field"><label>Cost / BF ($)</label><input type="number" id="bf-cost" value="5.50" step="0.10" oninput="calculateBF()"></div>
+            <div class="l-field"><label>Thickness (in)</label><input type="number" id="bf-thick" value="1" oninput="calculateBF()"></div>
+            <div class="l-field"><label>Width (in)</label><input type="number" id="bf-width" value="6" oninput="calculateBF()"></div>
+            <div class="l-field"><label>Length (ft)</label><input type="number" id="bf-length" value="8" oninput="calculateBF()"></div>
+            <div class="l-field"><label>Cost / BF ($)</label><input type="number" id="bf-cost" value="5.50" oninput="calculateBF()"></div>
             <div class="l-field"><label>Quantity</label><input type="number" id="bf-qty" value="1" oninput="calculateBF()"></div>
             
             <div class="bf-result">
-                <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
-                    <span>Board Feet:</span>
-                    <span id="res-bf-val" class="distinct">0.00 BF</span>
-                </div>
-                <div style="display:flex; justify-content:space-between; font-size:1.2rem;">
-                    <span>Total Cost:</span>
-                    <span id="res-bf-cost" class="highlight">$0.00</span>
-                </div>
+                <div style="display:flex; justify-content:space-between; margin-bottom:5px;"><span>Current Board Feet:</span><span id="res-bf-val" class="distinct">0.00 BF</span></div>
+                <div style="display:flex; justify-content:space-between; font-size:1.2rem;"><span>Current Cost:</span><span id="res-bf-cost" class="highlight">$0.00</span></div>
+            </div>
+            <button class="btn-save" style="margin-top:10px;" onclick="saveMaterial()">💾 Save to Material List</button>
+
+            <div style="margin-top:25px; border-top: 1px solid #333; padding-top:15px;">
+                <div class="widget-header"><h2>Material List</h2><button class="btn-clear-list" onclick="clearAllMaterials()">Clear</button></div>
+                <table id="material-list-table">
+                    <thead><tr><th>Item</th><th>BF</th><th>Cost</th><th>Action</th></tr></thead>
+                    <tbody id="material-list-body"></tbody>
+                    <tfoot>
+                        <tr style="border-top: 2px solid #444;">
+                            <td style="padding-top:10px;"><strong>TOTALS:</strong></td>
+                            <td id="grand-bf" class="distinct">0.00</td>
+                            <td id="grand-cost" class="highlight">$0.00</td>
+                            <td></td>
+                        </tr>
+                    </tfoot>
+                </table>
             </div>
         </div>
     </div>
@@ -186,13 +171,15 @@
 <script>
     let totalValue = 0; let inputW = "0"; let inputN = "0"; let inputD = 1;
     let nextOp = 'add'; let displayMode = 'fraction'; let roundingDenominator = 16;
-    let isSnapEnabled = false; let isFirstEntry = true; let savedMeasurements = [];
+    let isSnapEnabled = false; let isFirstEntry = true; 
+    let savedMeasurements = []; let savedMaterials = [];
+
     const ops = { add: { sym: '+', fn: (a, b) => a + b }, sub: { sym: '-', fn: (a, b) => a - b }, mul: { sym: '×', fn: (a, b) => a * b }, div: { sym: '÷', fn: (a, b) => b === 0 ? a : a / b } };
 
     function toggleSnap() { isSnapEnabled = document.getElementById('snap-toggle').checked; document.getElementById('prec-container').classList.toggle('disabled', !isSnapEnabled); refreshUI(); }
     function setPrecision(d) { roundingDenominator = d; document.querySelectorAll('.prec-btn').forEach(b => b.classList.toggle('active', b.innerText.includes(d))); refreshUI(); }
     function toggleDisplayMode() { displayMode = displayMode === 'fraction' ? 'decimal' : 'fraction'; document.getElementById('mode-text').innerText = displayMode; refreshUI(); }
-    function refreshUI() { updateDisplay(); updatePreview(); calculateLayout(); updateSavedList(); calculateBF(); }
+    function refreshUI() { updateDisplay(); updatePreview(); calculateLayout(); updateSavedList(); calculateBF(); updateMaterialList(); }
     function gcd(a, b) { return b ? gcd(b, a % b) : a; }
     function formatResult(val) {
         if (displayMode === 'decimal') return val.toFixed(4) + '"';
@@ -209,16 +196,7 @@
     function handleOp(k) { const c = getCurrentIn(); if(isFirstEntry){ totalValue = c; isFirstEntry = false; } else { totalValue = ops[nextOp].fn(totalValue, c); } nextOp = k; clearInput(); updateDisplay(); }
     function finish() { const c = getCurrentIn(); if(!isFirstEntry) totalValue = ops[nextOp].fn(totalValue, c); else totalValue = c; isFirstEntry = false; updateDisplay(); clearInput(); nextOp = 'add'; }
     function saveMeasurement() { const n = prompt("Name:"); if(n){ savedMeasurements.push({name:n, value:totalValue}); updateSavedList(); } }
-    
-    /* UPDATED TABLE BUILDER WITH RED BUTTON */
-    function updateSavedList() { 
-        const b = document.getElementById('saved-list-body'); 
-        b.innerHTML = ''; 
-        savedMeasurements.forEach((m, i) => { 
-            b.innerHTML += `<tr><td>${m.name}</td><td class="highlight">${formatResult(m.value)}</td><td><button class="btn-del-save" onclick="deleteSave(${i})">X</button></td></tr>`; 
-        }); 
-    }
-
+    function updateSavedList() { const b = document.getElementById('saved-list-body'); b.innerHTML = ''; savedMeasurements.forEach((m, i) => { b.innerHTML += `<tr><td>${m.name}</td><td class="highlight">${formatResult(m.value)}</td><td><button class="btn-del-save" onclick="deleteSave(${i})">X</button></td></tr>`; }); }
     function deleteSave(i) { savedMeasurements.splice(i, 1); updateSavedList(); }
     function clearAllSaved() { if(confirm("Clear?")){ savedMeasurements = []; updateSavedList(); } }
     function updatePreview() { document.getElementById('preview').innerText = `${ops[nextOp].sym} ${formatResult(getCurrentIn())}`; }
@@ -236,17 +214,43 @@
         for (let i = 0; i < n; i++) { const pos = sOff + (gap * i); b.innerHTML += `<tr><td>${i+1}</td><td class="${(i===0||i===n-1)?'distinct':'highlight'}">${formatResult(pos)}</td><td>${formatResult(gap)}</td></tr>`; }
     }
 
+    // BF CALCULATOR & MATERIAL LIST LOGIC
     function calculateBF() {
         const t = parseFloat(document.getElementById('bf-thick').value) || 0;
         const w = parseFloat(document.getElementById('bf-width').value) || 0;
         const l = parseFloat(document.getElementById('bf-length').value) || 0;
         const c = parseFloat(document.getElementById('bf-cost').value) || 0;
         const q = parseFloat(document.getElementById('bf-qty').value) || 1;
-        const totalBF = ((t * w * l) / 12) * q;
-        const totalCost = totalBF * c;
-        document.getElementById('res-bf-val').innerText = totalBF.toFixed(2) + " BF";
-        document.getElementById('res-bf-cost').innerText = "$" + totalCost.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+        const currentBF = ((t * w * l) / 12) * q;
+        const currentCost = currentBF * c;
+        document.getElementById('res-bf-val').innerText = currentBF.toFixed(2) + " BF";
+        document.getElementById('res-bf-cost').innerText = "$" + currentCost.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+        return { bf: currentBF, cost: currentCost };
     }
+
+    function saveMaterial() {
+        const name = prompt("Material/Part Name (e.g., Walnut, Table Top):");
+        if(name) {
+            const data = calculateBF();
+            savedMaterials.push({ name: name, bf: data.bf, cost: data.cost });
+            updateMaterialList();
+        }
+    }
+
+    function updateMaterialList() {
+        const body = document.getElementById('material-list-body');
+        body.innerHTML = '';
+        let totalBF = 0; let totalCost = 0;
+        savedMaterials.forEach((m, i) => {
+            totalBF += m.bf; totalCost += m.cost;
+            body.innerHTML += `<tr><td>${m.name}</td><td>${m.bf.toFixed(2)}</td><td class="highlight">$${m.cost.toFixed(2)}</td><td><button class="btn-del-save" onclick="deleteMaterial(${i})">X</button></td></tr>`;
+        });
+        document.getElementById('grand-bf').innerText = totalBF.toFixed(2) + " BF";
+        document.getElementById('grand-cost').innerText = "$" + totalCost.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    }
+
+    function deleteMaterial(i) { savedMaterials.splice(i, 1); updateMaterialList(); }
+    function clearAllMaterials() { if(confirm("Clear material list?")){ savedMaterials = []; updateMaterialList(); } }
 
     calculateLayout();
     calculateBF();
