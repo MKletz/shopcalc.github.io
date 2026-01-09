@@ -9,7 +9,7 @@
         body { font-family: 'Segoe UI', sans-serif; background: #333; color: white; margin: 0; padding: 20px; }
         
         .dashboard { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; align-items: flex-start; }
-        .widget { background: #1a1a1a; border-radius: 12px; padding: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); border: 1px solid #444; width: 100%; max-width: 500px; }
+        .widget { background: #1a1a1a; border-radius: 12px; padding: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); border: 1px solid #444; width: 100%; max-width: 500px; margin-bottom: 20px; }
         h2 { margin-top: 0; color: var(--wood); font-size: 1.1rem; text-transform: uppercase; border-bottom: 1px solid #333; padding-bottom: 10px; margin-bottom: 15px; }
 
         .display { background: #000; padding: 1.2rem; border-radius: 6px; text-align: right; margin-bottom: 10px; border-bottom: 4px solid var(--wood); position: relative; }
@@ -38,6 +38,9 @@
         .btn-eq { background: var(--success); color: white; grid-column: span 3; padding: 15px; margin-top: 10px; font-size: 1.4rem; }
         .btn-clr { background: #c0392b; color: white; }
         .btn-toggle { background: var(--decimal-blue); color: white; padding: 10px; font-size: 0.8rem; text-transform: uppercase; width: 100%; border-radius: 4px; }
+        
+        /* New Save Button */
+        .btn-save { background: #9b59b6; color: white; grid-column: span 3; padding: 12px; margin-top: 8px; font-size: 1.1rem; text-transform: uppercase; }
 
         .l-field { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
         .l-field input { background: #000; border: 1px solid #444; color: var(--wood); padding: 8px; border-radius: 4px; width: 90px; text-align: center; font-size: 1rem; }
@@ -46,6 +49,9 @@
         td { padding: 10px 8px; border-bottom: 1px solid #222; }
         .highlight { color: var(--wood); font-weight: bold; }
         .history { margin-top: 15px; background: #222; padding: 8px; border-radius: 4px; max-height: 100px; overflow-y: auto; font-family: monospace; font-size: 0.8rem; color: #777; border: 1px solid #333; }
+        
+        /* Saved List Styling */
+        .btn-del-save { background: #c0392b; color: white; padding: 4px 8px; font-size: 0.7rem; }
     </style>
 </head>
 <body>
@@ -123,39 +129,57 @@
                 </div>
             </div>
         </div>
+        <button class="btn-save" onclick="saveMeasurement()">💾 Save to Cut List</button>
         <button class="btn-eq" onclick="finish()">TOTAL (=)</button>
         <div class="history" id="history-log">History: Ready</div>
     </div>
 
-    <div class="widget">
-        <h2>Equal Spacing Layout</h2>
-        <div class="l-field">
-            <label>Total Length (in)</label>
-            <input type="number" id="lay-length" value="24" step="0.0625" oninput="calculateLayout()">
-        </div>
-        <div class="l-field">
-            <label>Number of Holes</label>
-            <input type="number" id="lay-count" value="3" oninput="calculateLayout()">
-        </div>
-        <div class="l-field">
-            <label>Hole Diameter (in)</label>
-            <input type="number" id="lay-diam" value="0.25" step="0.0625" oninput="calculateLayout()">
+    <div style="width: 100%; max-width: 500px;">
+        <div class="widget">
+            <h2>Equal Spacing Layout</h2>
+            <div class="l-field">
+                <label>Total Length (in)</label>
+                <input type="number" id="lay-length" value="24" step="0.0625" oninput="calculateLayout()">
+            </div>
+            <div class="l-field">
+                <label>Number of Holes</label>
+                <input type="number" id="lay-count" value="3" oninput="calculateLayout()">
+            </div>
+            <div class="l-field">
+                <label>Hole Diameter (in)</label>
+                <input type="number" id="lay-diam" value="0.25" step="0.0625" oninput="calculateLayout()">
+            </div>
+
+            <div id="layout-summary" style="background:#000; padding:10px; border-radius:4px; font-size:0.85rem; color:#888; margin:15px 0;">
+                Spacing...
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Mark #</th>
+                        <th>From Edge (Center)</th>
+                        <th>C-to-C Gap</th>
+                    </tr>
+                </thead>
+                <tbody id="layout-table-body"></tbody>
+            </table>
         </div>
 
-        <div id="layout-summary" style="background:#000; padding:10px; border-radius:4px; font-size:0.85rem; color:#888; margin:15px 0;">
-            Spacing...
+        <div class="widget">
+            <h2>Saved Measurements (Cut List)</h2>
+            <table id="saved-list-table">
+                <thead>
+                    <tr>
+                        <th>Part Name</th>
+                        <th>Measurement</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody id="saved-list-body">
+                    </tbody>
+            </table>
         </div>
-
-        <table>
-            <thead>
-                <tr>
-                    <th>Mark #</th>
-                    <th>From Edge (Center)</th>
-                    <th>C-to-C Gap</th>
-                </tr>
-            </thead>
-            <tbody id="layout-table-body"></tbody>
-        </table>
     </div>
 </div>
 
@@ -166,7 +190,7 @@
     let displayMode = 'fraction'; 
     let roundingDenominator = 16;
     let isSnapEnabled = false; 
-    let isFirstEntry = true; // NEW TRACKER
+    let isFirstEntry = true;
 
     const ops = { 
         add: { sym: '+', fn: (a, b) => a + b }, 
@@ -180,7 +204,7 @@
         const container = document.getElementById('prec-container');
         if (isSnapEnabled) container.classList.remove('disabled');
         else container.classList.add('disabled');
-        updateDisplay(); updatePreview(); calculateLayout();
+        updateDisplay(); updatePreview(); calculateLayout(); updateSavedList();
     }
 
     function setPrecision(d) {
@@ -188,7 +212,7 @@
         document.querySelectorAll('.prec-btn').forEach(btn => {
             btn.classList.toggle('active', parseInt(btn.innerText.split('/')[1]) === d);
         });
-        updateDisplay(); updatePreview(); calculateLayout();
+        updateDisplay(); updatePreview(); calculateLayout(); updateSavedList();
     }
 
     function formatResult(val) {
@@ -229,7 +253,6 @@
     
     function handleOp(opKey) {
         const cur = getCurrentIn();
-        
         if (isFirstEntry) {
             totalValue = cur;
             logHistory(`Start: ${formatResult(cur)}`);
@@ -238,10 +261,7 @@
             logHistory(`${ops[nextOp].sym} ${formatResult(cur)}`);
             totalValue = ops[nextOp].fn(totalValue, cur);
         }
-        
-        nextOp = opKey;
-        clearInput();
-        updateDisplay();
+        nextOp = opKey; clearInput(); updateDisplay();
     }
 
     function finish() {
@@ -260,27 +280,47 @@
         nextOp = 'add';
     }
 
+    /* SAVE LOGIC */
+    let savedMeasurements = [];
+    function saveMeasurement() {
+        if (totalValue === 0 && isFirstEntry) return;
+        const partName = prompt("Enter a name for this measurement:", "Part " + (savedMeasurements.length + 1));
+        if (partName) {
+            savedMeasurements.push({ name: partName, value: totalValue });
+            updateSavedList();
+        }
+    }
+
+    function updateSavedList() {
+        const tbody = document.getElementById('saved-list-body');
+        tbody.innerHTML = '';
+        savedMeasurements.forEach((item, index) => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${item.name}</td>
+                <td class="highlight">${formatResult(item.value)}</td>
+                <td><button class="btn-del-save" onclick="deleteSave(${index})">Delete</button></td>
+            `;
+            tbody.appendChild(row);
+        });
+    }
+
+    function deleteSave(index) {
+        savedMeasurements.splice(index, 1);
+        updateSavedList();
+    }
+
     function toggleDisplayMode() {
         displayMode = displayMode === 'fraction' ? 'decimal' : 'fraction';
         document.getElementById('mode-text').innerText = displayMode.charAt(0).toUpperCase() + displayMode.slice(1);
-        updateDisplay(); updatePreview(); calculateLayout();
+        updateDisplay(); updatePreview(); calculateLayout(); updateSavedList();
     }
 
     function updatePreview() { document.getElementById('preview').innerText = `${ops[nextOp].sym} ${formatResult(getCurrentIn())}`; }
     function updateDisplay() { document.getElementById('total').innerText = formatResult(totalValue); }
     function clearInput() { inputW = "0"; inputN = "0"; inputD = 1; updatePreview(); }
-    
-    function reset() { 
-        totalValue = 0; nextOp = 'add'; isFirstEntry = true; 
-        clearInput(); updateDisplay(); 
-        document.getElementById('history-log').innerHTML = "History: Ready"; 
-    }
-
-    function logHistory(msg) {
-        const log = document.getElementById('history-log');
-        log.innerHTML += `<div>${msg}</div>`;
-        log.scrollTop = log.scrollHeight;
-    }
+    function reset() { totalValue = 0; nextOp = 'add'; isFirstEntry = true; clearInput(); updateDisplay(); document.getElementById('history-log').innerHTML = "History: Ready"; }
+    function logHistory(msg) { const log = document.getElementById('history-log'); log.innerHTML += `<div>${msg}</div>`; log.scrollTop = log.scrollHeight; }
 
     function calculateLayout() {
         const L = parseFloat(document.getElementById('lay-length').value) || 0;
@@ -288,7 +328,7 @@
         const tbody = document.getElementById('layout-table-body');
         const summary = document.getElementById('layout-summary');
         tbody.innerHTML = '';
-        if (L <= 0 || n <= 0) { summary.innerText = "Enter valid dimensions..."; return; }
+        if (L <= 0 || n <= 0) return;
         const centerSpacing = L / (n + 1);
         summary.innerHTML = `C-to-C Gap: <span class="highlight">${formatResult(centerSpacing)}</span>`;
         for (let i = 1; i <= n; i++) {
