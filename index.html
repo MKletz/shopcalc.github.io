@@ -95,7 +95,7 @@
         .history-list { max-height: 150px; overflow-y: auto; margin-top: 10px; font-family: monospace; font-size: 0.8rem; }
         .history-entry { display: flex; align-items: center; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #222; }
         
-        .notes-area { width: 100%; min-height: 80px; background: #111; border: 1px solid #444; color: #ddd; padding: 12px; border-radius: 6px; resize: vertical; box-sizing: border-box; line-height: 1.5; font-family: inherit; font-size: 0.95rem;}
+        .notes-area { width: 100%; min-height: 80px; background: #111; border: 1px solid #444; color: #ddd; padding: 12px; border-radius: 6px; resize: none; box-sizing: border-box; line-height: 1.5; font-family: inherit; font-size: 0.95rem; overflow-y: hidden;}
         .l-field { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
         .l-field input { background: #000; border: 1px solid #444; color: var(--wood); padding: 8px; border-radius: 4px; width: 90px; text-align: center; font-size: 1rem; }
         
@@ -125,7 +125,7 @@
 <div class="notes-hero">
     <div class="widget">
         <div class="widget-header"><h2>Project Notes</h2></div>
-        <textarea id="project-notes" class="notes-area" placeholder="Enter measurements here..." oninput="syncState()"></textarea>
+        <textarea id="project-notes" class="notes-area" placeholder="Enter measurements here..." oninput="autoExpandNotes(); syncState()"></textarea>
     </div>
 </div>
 
@@ -241,6 +241,12 @@
     let savedMeasurements = [], savedMaterials = [];
     const ops = { add: { sym: '+', fn: (a, b) => a + b }, sub: { sym: '-', fn: (a, b) => a - b }, mul: { sym: '×', fn: (a, b) => a * b }, div: { sym: '÷', fn: (a, b) => b === 0 ? a : a / b } };
     
+    function autoExpandNotes() {
+        const el = document.getElementById('project-notes');
+        el.style.height = 'inherit';
+        el.style.height = `${el.scrollHeight}px`;
+    }
+
     function syncState() {
         const state = {
             t: document.getElementById('project-title').value, n: document.getElementById('project-notes').value,
@@ -270,6 +276,7 @@
             }
             if (state.cfg) { displayMode = state.cfg.mode; isSnapEnabled = state.cfg.snap; roundingDenominator = state.cfg.prec; document.getElementById('snap-toggle').checked = isSnapEnabled; document.getElementById('mode-text').innerText = displayMode === 'fraction' ? 'Fractional' : 'Decimal'; }
             toggleMirrorUI(); refreshUI();
+            setTimeout(autoExpandNotes, 100);
         } catch (e) { console.error(e); }
     }
 
@@ -334,7 +341,11 @@
         let eOff = m ? sOff : parseFloat(document.getElementById('lay-offset-end').value)||0;
         const b = document.getElementById('layout-table-body'); b.innerHTML = ''; if (L <= 0 || n <= 0) return;
         const use = L - sOff - eOff, gap = n > 1 ? use / (n - 1) : 0;
-        for (let i = 0; i < n; i++) { b.innerHTML += `<tr><td>${i+1}</td><td class="highlight">${formatResult(sOff + (gap * i))}</td><td>${formatResult(gap)}</td></tr>`; }
+        for (let i = 0; i < n; i++) { 
+            const isBound = (i === 0 || i === n - 1);
+            const colorClass = isBound ? 'distinct' : 'highlight';
+            b.innerHTML += `<tr><td>${i+1}</td><td class="${colorClass}">${formatResult(sOff + (gap * i))}</td><td>${formatResult(gap)}</td></tr>`; 
+        }
         syncState();
     }
 
