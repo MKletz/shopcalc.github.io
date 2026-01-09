@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shop Calc</title>
+    <title>Shop Calc - Project Sync</title>
     <style>
         :root { --wood: #e67e22; --slate: #2c3e50; --bg: #121212; --decimal-blue: #3498db; --success: #27ae60; --purple: #9b59b6; --danger: #c0392b; }
         body { font-family: 'Segoe UI', sans-serif; background: #333; color: white; margin: 0; padding: 20px; }
@@ -53,6 +53,8 @@
         
         .bf-result { background: #000; padding: 15px; border-radius: 6px; margin-top: 15px; border-left: 4px solid var(--success); }
         .btn-del-save { background: var(--danger); color: white; padding: 6px 10px; font-size: 0.75rem; border-radius: 4px; }
+        
+        #share-status { font-size: 0.7rem; color: var(--success); text-align: center; margin-top: 10px; opacity: 0; transition: 0.3s; }
     </style>
 </head>
 <body>
@@ -61,8 +63,8 @@
     <div class="widget">
         <div class="widget-header"><h2>Precision Calculator</h2></div>
         <div class="global-settings">
-            <button class="btn-toggle" onclick="toggleDisplayMode()" style="margin-bottom: 12px;">🔄 Mode: <span id="mode-text">Fractional</span></button>
-            <label class="snap-control">
+            <button class="btn-toggle" onclick="toggleDisplayMode()">🔄 Mode: <span id="mode-text">Fractional</span></button>
+            <label class="snap-control" style="margin-top:10px;">
                 <input type="checkbox" id="snap-toggle" onchange="toggleSnap()">
                 <span class="snap-label">Snap to Nearest Fraction</span>
             </label>
@@ -108,6 +110,7 @@
             <button class="btn-eq" onclick="finish()">TOTAL (=)</button>
             <button class="btn-save" onclick="saveMeasurement()">💾 Save to Cut List</button>
         </div>
+        <div id="share-status">Project Saved to URL!</div>
     </div>
 
     <div style="width: 100%; max-width: 500px;">
@@ -121,47 +124,37 @@
 
         <div class="widget">
             <div class="widget-header"><h2>Equal Spacing Layout</h2></div>
-            <div class="l-field"><label>Total Length (in)</label><input type="number" id="lay-length" value="24" oninput="calculateLayout()"></div>
+            <div class="l-field"><label>Total Length</label><input type="number" id="lay-length" value="24" oninput="calculateLayout()"></div>
             <div class="l-field"><label style="font-size: 0.8rem; color: #888;">Mirror Offsets</label><input type="checkbox" id="lay-mirror" checked onchange="toggleMirrorUI()"></div>
-            <div id="mirror-input-container" class="l-field"><label>Edge Offset (in)</label><input type="number" id="lay-offset-mirror" value="1" oninput="calculateLayout()"></div>
+            <div id="mirror-input-container" class="l-field"><label>Edge Offset</label><input type="number" id="lay-offset-mirror" value="1" oninput="calculateLayout()"></div>
             <div id="split-input-container" style="display: none;">
-                <div class="l-field"><label>Start Offset (in)</label><input type="number" id="lay-offset-start" value="1" oninput="calculateLayout()"></div>
-                <div class="l-field"><label>End Offset (in)</label><input type="number" id="lay-offset-end" value="1" oninput="calculateLayout()"></div>
+                <div class="l-field"><label>Start Offset</label><input type="number" id="lay-offset-start" value="1" oninput="calculateLayout()"></div>
+                <div class="l-field"><label>End Offset</label><input type="number" id="lay-offset-end" value="1" oninput="calculateLayout()"></div>
             </div>
-            <div class="l-field"><label>Number of Holes</label><input type="number" id="lay-count" value="3" oninput="calculateLayout()"></div>
-            <table>
+            <div class="l-field"><label>Hole Count</label><input type="number" id="lay-count" value="3" oninput="calculateLayout()"></div>
+            <table id="layout-table">
                 <thead><tr><th>Mark #</th><th>Position</th><th>Gap</th></tr></thead>
                 <tbody id="layout-table-body"></tbody>
             </table>
         </div>
 
         <div class="widget">
-            <div class="widget-header"><h2>Board Foot Calculator</h2></div>
-            <div class="l-field"><label>Thickness (in)</label><input type="number" id="bf-thick" value="1" oninput="calculateBF()"></div>
+            <div class="widget-header"><h2>Board Foot Calc & Material</h2></div>
+            <div class="l-field"><label>Thick (in)</label><input type="number" id="bf-thick" value="1" oninput="calculateBF()"></div>
             <div class="l-field"><label>Width (in)</label><input type="number" id="bf-width" value="6" oninput="calculateBF()"></div>
             <div class="l-field"><label>Length (ft)</label><input type="number" id="bf-length" value="8" oninput="calculateBF()"></div>
-            <div class="l-field"><label>Cost / BF ($)</label><input type="number" id="bf-cost" value="5.50" oninput="calculateBF()"></div>
-            <div class="l-field"><label>Quantity</label><input type="number" id="bf-qty" value="1" oninput="calculateBF()"></div>
-            
+            <div class="l-field"><label>Cost/BF ($)</label><input type="number" id="bf-cost" value="5.50" oninput="calculateBF()"></div>
+            <div class="l-field"><label>Qty</label><input type="number" id="bf-qty" value="1" oninput="calculateBF()"></div>
             <div class="bf-result">
-                <div style="display:flex; justify-content:space-between; margin-bottom:5px;"><span>Current Board Feet:</span><span id="res-bf-val" class="distinct">0.00 BF</span></div>
-                <div style="display:flex; justify-content:space-between; font-size:1.2rem;"><span>Current Cost:</span><span id="res-bf-cost" class="highlight">$0.00</span></div>
+                <div style="display:flex; justify-content:space-between; margin-bottom:5px;"><span>BF:</span><span id="res-bf-val" class="distinct">0.00 BF</span></div>
+                <div style="display:flex; justify-content:space-between; font-size:1.2rem;"><span>Cost:</span><span id="res-bf-cost" class="highlight">$0.00</span></div>
             </div>
-            <button class="btn-save" style="margin-top:10px;" onclick="saveMaterial()">💾 Save to Material List</button>
-
-            <div style="margin-top:25px; border-top: 1px solid #333; padding-top:15px;">
+            <button class="btn-save" style="margin-top:10px;" onclick="saveMaterial()">💾 Save Material</button>
+            <div style="margin-top:20px; border-top: 1px solid #333; padding-top:15px;">
                 <div class="widget-header"><h2>Material List</h2><button class="btn-clear-list" onclick="clearAllMaterials()">Clear</button></div>
-                <table id="material-list-table">
-                    <thead><tr><th>Item</th><th>BF</th><th>Cost</th><th>Action</th></tr></thead>
+                <table>
                     <tbody id="material-list-body"></tbody>
-                    <tfoot>
-                        <tr style="border-top: 2px solid #444;">
-                            <td style="padding-top:10px;"><strong>TOTALS:</strong></td>
-                            <td id="grand-bf" class="distinct">0.00</td>
-                            <td id="grand-cost" class="highlight">$0.00</td>
-                            <td></td>
-                        </tr>
-                    </tfoot>
+                    <tfoot><tr><td><strong>TOTAL:</strong></td><td id="grand-bf" class="distinct">0.00</td><td id="grand-cost" class="highlight">$0.00</td><td></td></tr></tfoot>
                 </table>
             </div>
         </div>
@@ -169,21 +162,74 @@
 </div>
 
 <script>
-    let totalValue = 0; let inputW = "0"; let inputN = "0"; let inputD = 1;
-    let nextOp = 'add'; let displayMode = 'fraction'; let roundingDenominator = 16;
-    let isSnapEnabled = false; let isFirstEntry = true; 
-    let savedMeasurements = []; let savedMaterials = [];
+    let totalValue = 0, inputW = "0", inputN = "0", inputD = 1, nextOp = 'add';
+    let displayMode = 'fraction', roundingDenominator = 16, isSnapEnabled = false, isFirstEntry = true;
+    let savedMeasurements = [], savedMaterials = [];
 
     const ops = { add: { sym: '+', fn: (a, b) => a + b }, sub: { sym: '-', fn: (a, b) => a - b }, mul: { sym: '×', fn: (a, b) => a * b }, div: { sym: '÷', fn: (a, b) => b === 0 ? a : a / b } };
 
-    function toggleSnap() { isSnapEnabled = document.getElementById('snap-toggle').checked; document.getElementById('prec-container').classList.toggle('disabled', !isSnapEnabled); refreshUI(); }
-    function setPrecision(d) { roundingDenominator = d; document.querySelectorAll('.prec-btn').forEach(b => b.classList.toggle('active', b.innerText.includes(d))); refreshUI(); }
-    function toggleDisplayMode() { displayMode = displayMode === 'fraction' ? 'decimal' : 'fraction'; document.getElementById('mode-text').innerText = displayMode; refreshUI(); }
-    function refreshUI() { updateDisplay(); updatePreview(); calculateLayout(); updateSavedList(); calculateBF(); updateMaterialList(); }
+    // SYNC LOGIC
+    function syncToUrl() {
+        const state = {
+            m: savedMeasurements,
+            mat: savedMaterials,
+            l: {
+                len: document.getElementById('lay-length').value,
+                cnt: document.getElementById('lay-count').value,
+                mir: document.getElementById('lay-mirror').checked,
+                offM: document.getElementById('lay-offset-mirror').value,
+                offS: document.getElementById('lay-offset-start').value,
+                offE: document.getElementById('lay-offset-end').value
+            },
+            cfg: { mode: displayMode, snap: isSnapEnabled, prec: roundingDenominator }
+        };
+        const hash = btoa(JSON.stringify(state));
+        window.history.replaceState(null, null, "#" + hash);
+        const status = document.getElementById('share-status');
+        status.style.opacity = 1; setTimeout(() => status.style.opacity = 0, 1000);
+    }
+
+    function loadFromUrl() {
+        try {
+            const hash = window.location.hash.substring(1);
+            if (!hash) return;
+            const state = JSON.parse(atob(hash));
+            savedMeasurements = state.m || [];
+            savedMaterials = state.mat || [];
+            if (state.l) {
+                document.getElementById('lay-length').value = state.l.len;
+                document.getElementById('lay-count').value = state.l.cnt;
+                document.getElementById('lay-mirror').checked = state.l.mir;
+                document.getElementById('lay-offset-mirror').value = state.l.offM;
+                document.getElementById('lay-offset-start').value = state.l.offS;
+                document.getElementById('lay-offset-end').value = state.l.offE;
+            }
+            if (state.cfg) {
+                displayMode = state.cfg.mode;
+                isSnapEnabled = state.cfg.snap;
+                roundingDenominator = state.cfg.prec;
+                document.getElementById('snap-toggle').checked = isSnapEnabled;
+                document.getElementById('mode-text').innerText = displayMode === 'fraction' ? 'Fractional' : 'Decimal';
+            }
+            toggleMirrorUI();
+            refreshUI();
+        } catch (e) { console.error("Load failed", e); }
+    }
+
+    // CORE REFRESH
+    function refreshUI() { 
+        updateDisplay(); updatePreview(); calculateLayout(); 
+        updateSavedList(); calculateBF(); updateMaterialList(); 
+    }
+
+    // CALCULATOR FUNCTIONS
+    function toggleSnap() { isSnapEnabled = document.getElementById('snap-toggle').checked; document.getElementById('prec-container').classList.toggle('disabled', !isSnapEnabled); syncToUrl(); refreshUI(); }
+    function setPrecision(d) { roundingDenominator = d; document.querySelectorAll('.prec-btn').forEach(b => b.classList.toggle('active', b.innerText.includes(d))); syncToUrl(); refreshUI(); }
+    function toggleDisplayMode() { displayMode = displayMode === 'fraction' ? 'decimal' : 'fraction'; document.getElementById('mode-text').innerText = displayMode.charAt(0).toUpperCase() + displayMode.slice(1); syncToUrl(); refreshUI(); }
     function gcd(a, b) { return b ? gcd(b, a % b) : a; }
     function formatResult(val) {
         if (displayMode === 'decimal') return val.toFixed(4) + '"';
-        const absVal = Math.abs(val); const w = Math.floor(absVal); const rem = absVal - w;
+        const absVal = Math.abs(val), w = Math.floor(absVal), rem = absVal - w;
         let n, d;
         if (isSnapEnabled) { n = Math.round(rem * roundingDenominator); d = roundingDenominator; } else { n = Math.round(rem * 64); d = 64; }
         if (n === 0) return `${val < 0 ? '-' : ''}${w}"`;
@@ -194,64 +240,51 @@
     function setDen(d) { inputD = d; updatePreview(); }
     function getCurrentIn() { return (parseFloat(inputW)||0) + ((parseInt(inputN)||0)/inputD); }
     function handleOp(k) { const c = getCurrentIn(); if(isFirstEntry){ totalValue = c; isFirstEntry = false; } else { totalValue = ops[nextOp].fn(totalValue, c); } nextOp = k; clearInput(); updateDisplay(); }
-    function finish() { const c = getCurrentIn(); if(!isFirstEntry) totalValue = ops[nextOp].fn(totalValue, c); else totalValue = c; isFirstEntry = false; updateDisplay(); clearInput(); nextOp = 'add'; }
-    function saveMeasurement() { const n = prompt("Name:"); if(n){ savedMeasurements.push({name:n, value:totalValue}); updateSavedList(); } }
+    function finish() { const c = getCurrentIn(); totalValue = !isFirstEntry ? ops[nextOp].fn(totalValue, c) : c; isFirstEntry = false; updateDisplay(); clearInput(); nextOp = 'add'; }
+    function saveMeasurement() { const n = prompt("Name:"); if(n){ savedMeasurements.push({name:n, value:totalValue}); syncToUrl(); updateSavedList(); } }
     function updateSavedList() { const b = document.getElementById('saved-list-body'); b.innerHTML = ''; savedMeasurements.forEach((m, i) => { b.innerHTML += `<tr><td>${m.name}</td><td class="highlight">${formatResult(m.value)}</td><td><button class="btn-del-save" onclick="deleteSave(${i})">X</button></td></tr>`; }); }
-    function deleteSave(i) { savedMeasurements.splice(i, 1); updateSavedList(); }
-    function clearAllSaved() { if(confirm("Clear?")){ savedMeasurements = []; updateSavedList(); } }
+    function deleteSave(i) { savedMeasurements.splice(i, 1); syncToUrl(); updateSavedList(); }
+    function clearAllSaved() { if(confirm("Clear list?")){ savedMeasurements = []; syncToUrl(); updateSavedList(); } }
     function updatePreview() { document.getElementById('preview').innerText = `${ops[nextOp].sym} ${formatResult(getCurrentIn())}`; }
     function updateDisplay() { document.getElementById('total').innerText = formatResult(totalValue); }
     function clearInput() { inputW = "0"; inputN = "0"; inputD = 1; updatePreview(); }
     function reset() { totalValue = 0; isFirstEntry = true; clearInput(); updateDisplay(); }
 
-    function toggleMirrorUI() { const m = document.getElementById('lay-mirror').checked; document.getElementById('mirror-input-container').style.display = m ? 'flex' : 'none'; document.getElementById('split-input-container').style.display = m ? 'none' : 'block'; calculateLayout(); }
+    // LAYOUT FUNCTIONS
+    function toggleMirrorUI() { const m = document.getElementById('lay-mirror').checked; document.getElementById('mirror-input-container').style.display = m ? 'flex' : 'none'; document.getElementById('split-input-container').style.display = m ? 'none' : 'block'; calculateLayout(); syncToUrl(); }
     function calculateLayout() {
-        const L = parseFloat(document.getElementById('lay-length').value) || 0; const n = parseInt(document.getElementById('lay-count').value) || 0; const m = document.getElementById('lay-mirror').checked;
+        const L = parseFloat(document.getElementById('lay-length').value) || 0, n = parseInt(document.getElementById('lay-count').value) || 0, m = document.getElementById('lay-mirror').checked;
         let sOff = m ? parseFloat(document.getElementById('lay-offset-mirror').value)||0 : parseFloat(document.getElementById('lay-offset-start').value)||0;
         let eOff = m ? sOff : parseFloat(document.getElementById('lay-offset-end').value)||0;
         const b = document.getElementById('layout-table-body'); b.innerHTML = ''; if (L <= 0 || n <= 0) return;
-        const use = L - sOff - eOff; const gap = n > 1 ? use / (n - 1) : 0;
-        for (let i = 0; i < n; i++) { const pos = sOff + (gap * i); b.innerHTML += `<tr><td>${i+1}</td><td class="${(i===0||i===n-1)?'distinct':'highlight'}">${formatResult(pos)}</td><td>${formatResult(gap)}</td></tr>`; }
+        const use = L - sOff - eOff, gap = n > 1 ? use / (n - 1) : 0;
+        for (let i = 0; i < n; i++) { b.innerHTML += `<tr><td>${i+1}</td><td class="highlight">${formatResult(sOff + (gap * i))}</td><td>${formatResult(gap)}</td></tr>`; }
     }
 
-    // BF CALCULATOR & MATERIAL LIST LOGIC
+    // BF & MATERIAL FUNCTIONS
     function calculateBF() {
-        const t = parseFloat(document.getElementById('bf-thick').value) || 0;
-        const w = parseFloat(document.getElementById('bf-width').value) || 0;
-        const l = parseFloat(document.getElementById('bf-length').value) || 0;
-        const c = parseFloat(document.getElementById('bf-cost').value) || 0;
-        const q = parseFloat(document.getElementById('bf-qty').value) || 1;
-        const currentBF = ((t * w * l) / 12) * q;
-        const currentCost = currentBF * c;
+        const t = parseFloat(document.getElementById('bf-thick').value)||0, w = parseFloat(document.getElementById('bf-width').value)||0, l = parseFloat(document.getElementById('bf-length').value)||0, c = parseFloat(document.getElementById('bf-cost').value)||0, q = parseFloat(document.getElementById('bf-qty').value)||1;
+        const currentBF = ((t * w * l) / 12) * q, currentCost = currentBF * c;
         document.getElementById('res-bf-val').innerText = currentBF.toFixed(2) + " BF";
         document.getElementById('res-bf-cost').innerText = "$" + currentCost.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
         return { bf: currentBF, cost: currentCost };
     }
-
-    function saveMaterial() {
-        const name = prompt("Material/Part Name (e.g., Walnut, Table Top):");
-        if(name) {
-            const data = calculateBF();
-            savedMaterials.push({ name: name, bf: data.bf, cost: data.cost });
-            updateMaterialList();
-        }
-    }
-
+    function saveMaterial() { const name = prompt("Material Name:"); if(name) { const data = calculateBF(); savedMaterials.push({ name: name, bf: data.bf, cost: data.cost }); syncToUrl(); updateMaterialList(); } }
     function updateMaterialList() {
-        const body = document.getElementById('material-list-body');
-        body.innerHTML = '';
-        let totalBF = 0; let totalCost = 0;
+        const body = document.getElementById('material-list-body'); body.innerHTML = '';
+        let tBF = 0, tC = 0;
         savedMaterials.forEach((m, i) => {
-            totalBF += m.bf; totalCost += m.cost;
+            tBF += m.bf; tC += m.cost;
             body.innerHTML += `<tr><td>${m.name}</td><td>${m.bf.toFixed(2)}</td><td class="highlight">$${m.cost.toFixed(2)}</td><td><button class="btn-del-save" onclick="deleteMaterial(${i})">X</button></td></tr>`;
         });
-        document.getElementById('grand-bf').innerText = totalBF.toFixed(2) + " BF";
-        document.getElementById('grand-cost').innerText = "$" + totalCost.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+        document.getElementById('grand-bf').innerText = tBF.toFixed(2) + " BF";
+        document.getElementById('grand-cost').innerText = "$" + tC.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
     }
+    function deleteMaterial(i) { savedMaterials.splice(i, 1); syncToUrl(); updateMaterialList(); }
+    function clearAllMaterials() { if(confirm("Clear?")){ savedMaterials = []; syncToUrl(); updateMaterialList(); } }
 
-    function deleteMaterial(i) { savedMaterials.splice(i, 1); updateMaterialList(); }
-    function clearAllMaterials() { if(confirm("Clear material list?")){ savedMaterials = []; updateMaterialList(); } }
-
+    // INIT
+    window.onload = loadFromUrl;
     calculateLayout();
     calculateBF();
 </script>
