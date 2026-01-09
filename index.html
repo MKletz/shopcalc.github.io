@@ -57,29 +57,23 @@
 
         .layout-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 10px; }
         
-        /* --- MOBILE CONDENSED STYLES --- */
         @media (max-width: 500px) {
             body { padding: 8px; }
             .widget { padding: 12px; }
             .display { padding: 0.8rem; margin-bottom: 8px; }
             .res-total { font-size: 1.8rem; }
-            
-            /* Compact settings row */
             .global-settings { padding: 8px; margin-bottom: 10px; }
             .settings-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
             .btn-toggle { font-size: 0.7rem; padding: 8px; }
-            
-            /* Shorter buttons */
-            .btn-num, .btn-den { padding: 10px 0; font-size: 1rem; }
-            .btn-op { padding: 8px 0; font-size: 1.1rem; }
-            .btn-eq { padding: 12px; font-size: 1.2rem; }
-            .btn-save { padding: 10px; font-size: 0.9rem; }
-            
-            /* Tighten grids */
-            .layout-grid { grid-template-columns: 1fr; gap: 10px; }
+            .btn-num, .btn-den { padding: 8px 0; font-size: 0.9rem; }
+            .btn-op { padding: 6px 0; font-size: 1rem; }
+            .btn-eq { padding: 10px; font-size: 1.1rem; }
+            .btn-save { padding: 8px; font-size: 0.85rem; }
+            .layout-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
             .pad { gap: 4px; }
-            
             .project-title-input { font-size: 1.4rem; }
+            .l-field label { font-size: 0.8rem; }
+            .l-field input { width: 70px; padding: 6px; }
         }
 
         .pad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
@@ -129,7 +123,7 @@
 </div>
 
 <div class="notes-hero">
-    <div class="widget" style="max-width: 1040px; margin: 0 auto;">
+    <div class="widget">
         <div class="widget-header"><h2>Project Notes</h2></div>
         <textarea id="project-notes" class="notes-area" placeholder="Enter measurements here..." oninput="syncState()"></textarea>
     </div>
@@ -206,31 +200,31 @@
 
     <div class="dash-col">
         <div class="widget">
-            <div class="widget-header"><h2>Layout</h2></div>
-            <div class="l-field"><label>Length</label><input type="number" id="lay-length" value="24" oninput="calculateLayout()"></div>
-            <div class="l-field"><label>Mirror</label><input type="checkbox" id="lay-mirror" checked onchange="toggleMirrorUI()"></div>
-            <div id="mirror-input-container" class="l-field"><label>Edge Off</label><input type="number" id="lay-offset-mirror" value="1" oninput="calculateLayout()"></div>
+            <div class="widget-header"><h2>Layout Tool</h2></div>
+            <div class="l-field"><label>Total Length</label><input type="number" id="lay-length" value="24" oninput="calculateLayout()"></div>
+            <div class="l-field"><label>Mirror Offset</label><input type="checkbox" id="lay-mirror" checked onchange="toggleMirrorUI()"></div>
+            <div id="mirror-input-container" class="l-field"><label>Edge Offset</label><input type="number" id="lay-offset-mirror" value="1" oninput="calculateLayout()"></div>
             <div id="split-input-container" style="display: none;">
-                <div class="l-field"><label>Start</label><input type="number" id="lay-offset-start" value="1" oninput="calculateLayout()"></div>
-                <div class="l-field"><label>End</label><input type="number" id="lay-offset-end" value="1" oninput="calculateLayout()"></div>
+                <div class="l-field"><label>Start Offset</label><input type="number" id="lay-offset-start" value="1" oninput="calculateLayout()"></div>
+                <div class="l-field"><label>End Offset</label><input type="number" id="lay-offset-end" value="1" oninput="calculateLayout()"></div>
             </div>
-            <div class="l-field"><label>Holes</label><input type="number" id="lay-count" value="3" oninput="calculateLayout()"></div>
+            <div class="l-field"><label>Hole/Part Count</label><input type="number" id="lay-count" value="3" oninput="calculateLayout()"></div>
             <table id="layout-table">
-                <thead><tr><th>#</th><th>Pos</th><th>Gap</th></tr></thead>
+                <thead><tr><th>#</th><th>Position</th><th>Gap</th></tr></thead>
                 <tbody id="layout-table-body"></tbody>
             </table>
         </div>
 
         <div class="widget">
-            <div class="widget-header"><h2>Board Foot</h2></div>
-            <div class="l-field"><label>T (in)</label><input type="number" id="bf-thick" value="1" oninput="calculateBF()"></div>
-            <div class="l-field"><label>W (in)</label><input type="number" id="bf-width" value="6" oninput="calculateBF()"></div>
-            <div class="l-field"><label>L (ft)</label><input type="number" id="bf-length" value="8" oninput="calculateBF()"></div>
-            <div class="l-field"><label>$/BF</label><input type="number" id="bf-cost" value="5.50" oninput="calculateBF()"></div>
-            <div class="l-field"><label>Qty</label><input type="number" id="bf-qty" value="1" oninput="calculateBF()"></div>
+            <div class="widget-header"><h2>Board Foot Calculator</h2></div>
+            <div class="l-field"><label>Thickness (in)</label><input type="number" id="bf-thick" value="1" oninput="calculateBF()"></div>
+            <div class="l-field"><label>Width (in)</label><input type="number" id="bf-width" value="6" oninput="calculateBF()"></div>
+            <div class="l-field"><label>Length (ft)</label><input type="number" id="bf-length" value="8" oninput="calculateBF()"></div>
+            <div class="l-field"><label>Cost ($/BF)</label><input type="number" id="bf-cost" value="5.50" oninput="calculateBF()"></div>
+            <div class="l-field"><label>Quantity</label><input type="number" id="bf-qty" value="1" oninput="calculateBF()"></div>
             <div style="background: #000; padding: 15px; border-radius: 6px; margin-top: 15px; border-left: 4px solid var(--success);">
                 <div style="display:flex; justify-content:space-between; margin-bottom:5px;"><span>BF:</span><span id="res-bf-val" class="distinct">0.00 BF</span></div>
-                <div style="display:flex; justify-content:space-between; font-size:1.2rem;"><span>Cost:</span><span id="res-bf-cost" class="highlight">$0.00</span></div>
+                <div style="display:flex; justify-content:space-between; font-size:1.2rem;"><span>Total Cost:</span><span id="res-bf-cost" class="highlight">$0.00</span></div>
             </div>
             <button class="btn-save" style="margin-top:10px;" onclick="saveMaterial()">💾 Save Material</button>
             <div style="margin-top:20px; border-top: 1px solid #333; padding-top:15px;">
@@ -246,6 +240,7 @@
     let displayMode = 'fraction', roundingDenominator = 16, isSnapEnabled = false, isFirstEntry = true;
     let savedMeasurements = [], savedMaterials = [];
     const ops = { add: { sym: '+', fn: (a, b) => a + b }, sub: { sym: '-', fn: (a, b) => a - b }, mul: { sym: '×', fn: (a, b) => a * b }, div: { sym: '÷', fn: (a, b) => b === 0 ? a : a / b } };
+    
     function syncState() {
         const state = {
             t: document.getElementById('project-title').value, n: document.getElementById('project-notes').value,
@@ -257,7 +252,9 @@
         window.history.replaceState(null, null, "#" + encoded);
         localStorage.setItem('shop_calc_last_project', encoded);
     }
+
     function resetFullProject() { if(confirm("Clear everything?")) { localStorage.removeItem('shop_calc_last_project'); window.location.hash = ""; location.reload(); } }
+
     function loadProject() {
         try {
             let data = window.location.hash.substring(1) || localStorage.getItem('shop_calc_last_project');
@@ -275,6 +272,7 @@
             toggleMirrorUI(); refreshUI();
         } catch (e) { console.error(e); }
     }
+
     function showToast() { const x = document.getElementById("toast"); x.className = "show"; setTimeout(() => { x.className = x.className.replace("show", ""); }, 3000); }
     function copyProjectLink() { syncState(); navigator.clipboard.writeText(window.location.href).then(() => { showToast(); }); }
     function refreshUI() { updateDisplay(); updatePreview(); calculateLayout(); updateSavedList(); calculateBF(); updateMaterialList(); }
@@ -282,6 +280,7 @@
     function setPrecision(d) { roundingDenominator = d; document.querySelectorAll('.prec-btn').forEach(b => b.classList.toggle('active', b.innerText.includes(d))); syncState(); refreshUI(); }
     function toggleDisplayMode() { displayMode = displayMode === 'fraction' ? 'decimal' : 'fraction'; document.getElementById('mode-text').innerText = displayMode.charAt(0).toUpperCase() + displayMode.slice(1); syncState(); refreshUI(); }
     function gcd(a, b) { return b ? gcd(b, a % b) : a; }
+    
     function formatResult(val) {
         if (displayMode === 'decimal') return val.toFixed(4) + '"';
         const absVal = Math.abs(val), w = Math.floor(absVal), rem = absVal - w;
@@ -291,27 +290,33 @@
         if (n === d) return `${val < 0 ? '-' : ''}${w + 1}"`;
         const c = gcd(n, d); return `${val < 0 ? '-' : ''}${w > 0 ? w + ' ' : ''}${n/c}/${d/c}"`;
     }
+
     function press(t, v) { if(t==='w'){ if(v==='.' && inputW.includes('.')) return; inputW = inputW === "0" && v !== '.' ? v.toString() : inputW + v; } else { inputN = inputN === "0" ? v.toString() : inputN + v; } updatePreview(); }
     function setDen(d) { inputD = d; updatePreview(); }
     function getCurrentIn() { return (parseFloat(inputW)||0) + ((parseInt(inputN)||0)/inputD); }
+
     function addToHistory(left, op, right, result) {
         const log = document.getElementById('history-log');
         const entry = document.createElement('div'); entry.className = 'history-entry';
         entry.innerHTML = `<div class="history-text">${formatResult(left)} ${op} ${formatResult(right)} =</div><div class="history-result">${formatResult(result)}</div><button class="btn-recall" onclick="recallValue(${result})">↺</button>`;
         log.prepend(entry);
     }
+
     function recallValue(val) { totalValue = val; isFirstEntry = false; updateDisplay(); }
+
     function handleOp(k) { 
         const c = getCurrentIn(); const oldTotal = totalValue;
         if(isFirstEntry){ totalValue = c; isFirstEntry = false; } else { totalValue = ops[nextOp].fn(totalValue, c); addToHistory(oldTotal, ops[nextOp].sym, c, totalValue); } 
         nextOp = k; clearInput(); updateDisplay(); 
     }
+
     function finish() { 
         const c = getCurrentIn(); const oldTotal = totalValue;
         const result = !isFirstEntry ? ops[nextOp].fn(totalValue, c) : c;
         if (!isFirstEntry) addToHistory(oldTotal, ops[nextOp].sym, c, result);
         totalValue = result; isFirstEntry = true; updateDisplay(); clearInput(); nextOp = 'add'; 
     }
+
     function saveMeasurement() { const n = prompt("Part Name:"); if(n){ savedMeasurements.push({name:n, value:totalValue}); syncState(); updateSavedList(); } }
     function updateSavedList() { const b = document.getElementById('saved-list-body'); b.innerHTML = ''; savedMeasurements.forEach((m, i) => { b.innerHTML += `<tr><td>${m.name}</td><td class="highlight">${formatResult(m.value)}</td><td><button class="btn-del-save" onclick="deleteSave(${i})">X</button></td></tr>`; }); }
     function deleteSave(i) { savedMeasurements.splice(i, 1); syncState(); updateSavedList(); }
@@ -320,7 +325,9 @@
     function updateDisplay() { document.getElementById('total').innerText = formatResult(totalValue); }
     function clearInput() { inputW = "0"; inputN = "0"; inputD = 1; updatePreview(); }
     function resetCalc() { totalValue = 0; isFirstEntry = true; document.getElementById('history-log').innerHTML = ''; clearInput(); updateDisplay(); }
+
     function toggleMirrorUI() { const m = document.getElementById('lay-mirror').checked; document.getElementById('mirror-input-container').style.display = m ? 'flex' : 'none'; document.getElementById('split-input-container').style.display = m ? 'none' : 'block'; calculateLayout(); syncState(); }
+    
     function calculateLayout() {
         const L = parseFloat(document.getElementById('lay-length').value) || 0, n = parseInt(document.getElementById('lay-count').value) || 0, m = document.getElementById('lay-mirror').checked;
         let sOff = m ? parseFloat(document.getElementById('lay-offset-mirror').value)||0 : parseFloat(document.getElementById('lay-offset-start').value)||0;
@@ -330,6 +337,7 @@
         for (let i = 0; i < n; i++) { b.innerHTML += `<tr><td>${i+1}</td><td class="highlight">${formatResult(sOff + (gap * i))}</td><td>${formatResult(gap)}</td></tr>`; }
         syncState();
     }
+
     function calculateBF() {
         const t = parseFloat(document.getElementById('bf-thick').value)||0, w = parseFloat(document.getElementById('bf-width').value)||0, l = parseFloat(document.getElementById('bf-length').value)||0, c = parseFloat(document.getElementById('bf-cost').value)||0, q = parseFloat(document.getElementById('bf-qty').value)||1;
         const currentBF = ((t * w * l) / 12) * q, currentCost = currentBF * c;
@@ -337,6 +345,7 @@
         document.getElementById('res-bf-cost').innerText = "$" + currentCost.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
         return { bf: currentBF, cost: currentCost };
     }
+
     function saveMaterial() { const name = prompt("Name:"); if(name) { const d = calculateBF(); savedMaterials.push({ name: name, bf: d.bf, cost: d.cost }); syncState(); updateMaterialList(); } }
     function updateMaterialList() {
         const body = document.getElementById('material-list-body'); body.innerHTML = '';
