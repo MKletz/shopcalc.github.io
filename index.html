@@ -14,15 +14,17 @@
         .project-title-input:focus { border-bottom-color: var(--wood); }
         .project-label { font-size: 0.7rem; text-transform: uppercase; color: #888; letter-spacing: 1px; display: block; margin-bottom: 5px; }
 
-        /* Full-width notes section */
+        .btn-group { display: flex; gap: 10px; }
+        .btn-share { background: var(--success); color: white; padding: 12px 20px; font-size: 0.9rem; border-radius: 6px; display: flex; align-items: center; gap: 8px; border: none; cursor: pointer; font-weight: bold; }
+        .btn-pdf { background: var(--slate); color: white; padding: 12px 20px; font-size: 0.9rem; border-radius: 6px; display: flex; align-items: center; gap: 8px; border: none; cursor: pointer; font-weight: bold; }
+
         .notes-hero { max-width: 1040px; margin: 0 auto 20px auto; }
-        
         .dashboard { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; align-items: flex-start; }
         .widget { background: #1a1a1a; border-radius: 12px; padding: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); border: 1px solid #444; width: 100%; max-width: 500px; margin-bottom: 20px; position: relative; box-sizing: border-box; }
         .widget-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #333; padding-bottom: 10px; margin-bottom: 15px; }
         h2 { margin: 0; color: var(--wood); font-size: 1.1rem; text-transform: uppercase; }
 
-        .display { background: #000; padding: 1.2rem; border-radius: 6px; text-align: right; margin-bottom: 10px; border-bottom: 4px solid var(--wood); position: relative; }
+        .display { background: #000; padding: 1.2rem; border-radius: 6px; text-align: right; margin-bottom: 10px; border-bottom: 4px solid var(--wood); }
         .res-total { font-size: 2.2rem; color: var(--wood); font-weight: bold; }
         .res-input { font-size: 0.9rem; color: #7f8c8d; min-height: 1.2rem; }
         
@@ -47,7 +49,6 @@
         .btn-clr { background: var(--danger); color: white; }
         .btn-toggle { background: var(--decimal-blue); color: white; padding: 10px; font-size: 0.8rem; text-transform: uppercase; width: 100%; border-radius: 4px; }
         .btn-clear-list { background: transparent; border: 1px solid var(--danger); color: var(--danger); padding: 4px 8px; font-size: 0.65rem; text-transform: uppercase; border-radius: 4px; }
-        .btn-share { background: var(--success); color: white; padding: 12px 20px; font-size: 0.9rem; border-radius: 6px; display: flex; align-items: center; gap: 8px; }
 
         .action-area { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
         .btn-eq { background: var(--success); color: white; padding: 15px; font-size: 1.4rem; width: 100%; }
@@ -73,6 +74,19 @@
         
         .bf-result { background: #000; padding: 15px; border-radius: 6px; margin-top: 15px; border-left: 4px solid var(--success); }
         .btn-del-save { background: var(--danger); color: white; padding: 6px 10px; font-size: 0.75rem; border-radius: 4px; }
+
+        @media print {
+            body { background: white; color: black; padding: 0; }
+            .header-area button, .global-settings, .layout-grid, .action-area, .history-section, .btn-clear-list, .btn-del-save, .btn-save { display: none !important; }
+            .dashboard { display: block; }
+            .widget { box-shadow: none; border: 1px solid #ccc; width: 100%; max-width: 100%; margin: 10px 0; background: white; color: black; }
+            .notes-hero { margin-bottom: 10px; }
+            .notes-area { border: none; color: black; background: white; height: auto; min-height: auto; }
+            .res-total, .highlight, .distinct, h2 { color: black !important; }
+            .project-title-input { border-bottom-color: black; color: black; }
+            .widget-header { border-bottom-color: #eee; }
+            td, th { border-bottom-color: #eee; }
+        }
     </style>
 </head>
 <body>
@@ -82,12 +96,15 @@
         <span class="project-label">Project Name</span>
         <input type="text" id="project-title" class="project-title-input" placeholder="Untitled Project..." oninput="syncToUrl()">
     </div>
-    <button class="btn-share" onclick="copyProjectLink()">🔗 Copy Project Link</button>
+    <div class="btn-group">
+        <button class="btn-pdf" onclick="window.print()">📄 Save as PDF</button>
+        <button class="btn-share" onclick="copyProjectLink()">🔗 Copy Link</button>
+    </div>
 </div>
 
 <div class="notes-hero">
     <div class="widget" style="max-width: 1040px; margin: 0 auto;">
-        <div class="widget-header"><h2>Project Notes & Cut List</h2></div>
+        <div class="widget-header"><h2>Project Notes</h2></div>
         <textarea id="project-notes" class="notes-area" placeholder="Enter measurements, hardware list, or assembly reminders here..." oninput="syncToUrl()"></textarea>
     </div>
 </div>
@@ -209,20 +226,11 @@
         const state = {
             t: document.getElementById('project-title').value,
             n: document.getElementById('project-notes').value,
-            m: savedMeasurements,
-            mat: savedMaterials,
-            l: {
-                len: document.getElementById('lay-length').value,
-                cnt: document.getElementById('lay-count').value,
-                mir: document.getElementById('lay-mirror').checked,
-                offM: document.getElementById('lay-offset-mirror').value,
-                offS: document.getElementById('lay-offset-start').value,
-                offE: document.getElementById('lay-offset-end').value
-            },
+            m: savedMeasurements, mat: savedMaterials,
+            l: { len: document.getElementById('lay-length').value, cnt: document.getElementById('lay-count').value, mir: document.getElementById('lay-mirror').checked, offM: document.getElementById('lay-offset-mirror').value, offS: document.getElementById('lay-offset-start').value, offE: document.getElementById('lay-offset-end').value },
             cfg: { mode: displayMode, snap: isSnapEnabled, prec: roundingDenominator }
         };
-        const hash = btoa(JSON.stringify(state));
-        window.history.replaceState(null, null, "#" + hash);
+        window.history.replaceState(null, null, "#" + btoa(JSON.stringify(state)));
     }
 
     function loadFromUrl() {
@@ -249,16 +257,11 @@
                 document.getElementById('snap-toggle').checked = isSnapEnabled;
                 document.getElementById('mode-text').innerText = displayMode === 'fraction' ? 'Fractional' : 'Decimal';
             }
-            toggleMirrorUI();
-            refreshUI();
+            toggleMirrorUI(); refreshUI();
         } catch (e) { console.error("Load failed", e); }
     }
 
-    function copyProjectLink() {
-        syncToUrl();
-        navigator.clipboard.writeText(window.location.href).then(() => alert("Project Link Copied!"));
-    }
-
+    function copyProjectLink() { syncToUrl(); navigator.clipboard.writeText(window.location.href).then(() => alert("Project Link Copied!")); }
     function refreshUI() { updateDisplay(); updatePreview(); calculateLayout(); updateSavedList(); calculateBF(); updateMaterialList(); }
     function toggleSnap() { isSnapEnabled = document.getElementById('snap-toggle').checked; document.getElementById('prec-container').classList.toggle('disabled', !isSnapEnabled); syncToUrl(); refreshUI(); }
     function setPrecision(d) { roundingDenominator = d; document.querySelectorAll('.prec-btn').forEach(b => b.classList.toggle('active', b.innerText.includes(d))); syncToUrl(); refreshUI(); }
@@ -291,16 +294,14 @@
     function recallValue(val) { totalValue = val; isFirstEntry = false; updateDisplay(); }
 
     function handleOp(k) { 
-        const c = getCurrentIn(); 
-        const oldTotal = totalValue;
+        const c = getCurrentIn(); const oldTotal = totalValue;
         if(isFirstEntry){ totalValue = c; isFirstEntry = false; } 
         else { totalValue = ops[nextOp].fn(totalValue, c); addToHistory(oldTotal, ops[nextOp].sym, c, totalValue); } 
         nextOp = k; clearInput(); updateDisplay(); 
     }
     
     function finish() { 
-        const c = getCurrentIn(); 
-        const oldTotal = totalValue;
+        const c = getCurrentIn(); const oldTotal = totalValue;
         const result = !isFirstEntry ? ops[nextOp].fn(totalValue, c) : c;
         if (!isFirstEntry) addToHistory(oldTotal, ops[nextOp].sym, c, result);
         totalValue = result; isFirstEntry = true; updateDisplay(); clearInput(); nextOp = 'add'; 
