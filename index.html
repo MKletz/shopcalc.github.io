@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shop Calc</title>
     <style>
-        :root { --wood: #e67e22; --slate: #2c3e50; --bg: #121212; --decimal-blue: #3498db; --success: #27ae60; --purple: #9b59b6; }
+        :root { --wood: #e67e22; --slate: #2c3e50; --bg: #121212; --decimal-blue: #3498db; --success: #27ae60; --purple: #9b59b6; --danger: #c0392b; }
         body { font-family: 'Segoe UI', sans-serif; background: #333; color: white; margin: 0; padding: 20px; }
         
         .dashboard { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; align-items: flex-start; }
@@ -35,9 +35,9 @@
         .btn-num { background: #3d3d3d; color: white; padding: 15px 0; font-size: 1.1rem; }
         .btn-den { background: #2980b9; color: white; padding: 15px 0; font-size: 1.1rem; }
         .btn-op { background: var(--wood); color: white; padding: 12px 0; font-size: 1.3rem; }
-        .btn-clr { background: #c0392b; color: white; }
+        .btn-clr { background: var(--danger); color: white; }
         .btn-toggle { background: var(--decimal-blue); color: white; padding: 10px; font-size: 0.8rem; text-transform: uppercase; width: 100%; border-radius: 4px; }
-        .btn-clear-list { background: transparent; border: 1px solid #c0392b; color: #c0392b; padding: 4px 8px; font-size: 0.65rem; text-transform: uppercase; border-radius: 4px; }
+        .btn-clear-list { background: transparent; border: 1px solid var(--danger); color: var(--danger); padding: 4px 8px; font-size: 0.65rem; text-transform: uppercase; border-radius: 4px; }
         
         .action-area { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
         .btn-eq { background: var(--success); color: white; padding: 15px; font-size: 1.4rem; width: 100%; }
@@ -52,6 +52,10 @@
         .distinct { color: var(--success); font-weight: bold; }
         
         .bf-result { background: #000; padding: 15px; border-radius: 6px; margin-top: 15px; border-left: 4px solid var(--success); }
+        
+        /* UPDATED DELETE BUTTON STYLE */
+        .btn-del-save { background: var(--danger); color: white; padding: 6px 10px; font-size: 0.75rem; border-radius: 4px; }
+        .btn-del-save:hover { background: #ff4d4d; }
     </style>
 </head>
 <body>
@@ -205,7 +209,16 @@
     function handleOp(k) { const c = getCurrentIn(); if(isFirstEntry){ totalValue = c; isFirstEntry = false; } else { totalValue = ops[nextOp].fn(totalValue, c); } nextOp = k; clearInput(); updateDisplay(); }
     function finish() { const c = getCurrentIn(); if(!isFirstEntry) totalValue = ops[nextOp].fn(totalValue, c); else totalValue = c; isFirstEntry = false; updateDisplay(); clearInput(); nextOp = 'add'; }
     function saveMeasurement() { const n = prompt("Name:"); if(n){ savedMeasurements.push({name:n, value:totalValue}); updateSavedList(); } }
-    function updateSavedList() { const b = document.getElementById('saved-list-body'); b.innerHTML = ''; savedMeasurements.forEach((m, i) => { b.innerHTML += `<tr><td>${m.name}</td><td class="highlight">${formatResult(m.value)}</td><td><button class="btn-del-save" onclick="deleteSave(${i})">X</button></td></tr>`; }); }
+    
+    /* UPDATED TABLE BUILDER WITH RED BUTTON */
+    function updateSavedList() { 
+        const b = document.getElementById('saved-list-body'); 
+        b.innerHTML = ''; 
+        savedMeasurements.forEach((m, i) => { 
+            b.innerHTML += `<tr><td>${m.name}</td><td class="highlight">${formatResult(m.value)}</td><td><button class="btn-del-save" onclick="deleteSave(${i})">X</button></td></tr>`; 
+        }); 
+    }
+
     function deleteSave(i) { savedMeasurements.splice(i, 1); updateSavedList(); }
     function clearAllSaved() { if(confirm("Clear?")){ savedMeasurements = []; updateSavedList(); } }
     function updatePreview() { document.getElementById('preview').innerText = `${ops[nextOp].sym} ${formatResult(getCurrentIn())}`; }
@@ -229,10 +242,8 @@
         const l = parseFloat(document.getElementById('bf-length').value) || 0;
         const c = parseFloat(document.getElementById('bf-cost').value) || 0;
         const q = parseFloat(document.getElementById('bf-qty').value) || 1;
-        
         const totalBF = ((t * w * l) / 12) * q;
         const totalCost = totalBF * c;
-        
         document.getElementById('res-bf-val').innerText = totalBF.toFixed(2) + " BF";
         document.getElementById('res-bf-cost').innerText = "$" + totalCost.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
     }
