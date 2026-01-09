@@ -50,7 +50,7 @@
         th { text-align: left; color: #888; border-bottom: 1px solid #333; padding: 8px; font-size: 0.7rem; text-transform: uppercase; }
         td { padding: 10px 8px; border-bottom: 1px solid #222; }
         .highlight { color: var(--wood); font-weight: bold; }
-        .distinct { color: var(--success); font-weight: bold; } /* Added green highlight class */
+        .distinct { color: var(--success); font-weight: bold; }
 
         .history-container { margin-top: 15px; }
         .history-toggle { width: 100%; background: #444; color: #bbb; padding: 8px; font-size: 0.75rem; text-transform: uppercase; border-radius: 4px; cursor: pointer; text-align: center; }
@@ -167,14 +167,33 @@
                 <label>Total Length (in)</label>
                 <input type="number" id="lay-length" value="24" step="0.0625" oninput="calculateLayout()">
             </div>
+            
             <div class="l-field">
-                <label>Edge Offset (in)</label>
-                <input type="number" id="lay-offset" value="1" step="0.0625" oninput="calculateLayout()">
+                <label style="font-size: 0.8rem; color: #888;">Mirror Offsets</label>
+                <input type="checkbox" id="lay-mirror" checked onchange="toggleMirrorUI()">
             </div>
+
+            <div id="mirror-input-container" class="l-field">
+                <label>Edge Offset (in)</label>
+                <input type="number" id="lay-offset-mirror" value="1" step="0.0625" oninput="calculateLayout()">
+            </div>
+
+            <div id="split-input-container" style="display: none;">
+                <div class="l-field">
+                    <label>Start Offset (in)</label>
+                    <input type="number" id="lay-offset-start" value="1" step="0.0625" oninput="calculateLayout()">
+                </div>
+                <div class="l-field">
+                    <label>End Offset (in)</label>
+                    <input type="number" id="lay-offset-end" value="1" step="0.0625" oninput="calculateLayout()">
+                </div>
+            </div>
+
             <div class="l-field">
                 <label>Number of Holes</label>
                 <input type="number" id="lay-count" value="3" oninput="calculateLayout()">
             </div>
+
             <div id="layout-summary" style="background:#000; padding:10px; border-radius:4px; font-size:0.85rem; color:#888; margin:15px 0;">
                 Spacing...
             </div>
@@ -209,24 +228,19 @@
         div: { sym: '÷', fn: (a, b) => b === 0 ? a : a / b } 
     };
 
+    // HISTORY & MODES
     function toggleHistory() {
         const log = document.getElementById('history-log');
         const toggle = document.querySelector('.history-toggle');
-        if (log.style.display === 'block') {
-            log.style.display = 'none';
-            toggle.innerText = '📋 View Calculation History';
-        } else {
-            log.style.display = 'block';
-            toggle.innerText = '❌ Close History';
-        }
+        const isVisible = log.style.display === 'block';
+        log.style.display = isVisible ? 'none' : 'block';
+        toggle.innerText = isVisible ? '📋 View Calculation History' : '❌ Close History';
     }
 
     function toggleSnap() {
         isSnapEnabled = document.getElementById('snap-toggle').checked;
-        const container = document.getElementById('prec-container');
-        if (isSnapEnabled) container.classList.remove('disabled');
-        else container.classList.add('disabled');
-        updateDisplay(); updatePreview(); calculateLayout(); updateSavedList();
+        document.getElementById('prec-container').classList.toggle('disabled', !isSnapEnabled);
+        refreshUI();
     }
 
     function setPrecision(d) {
@@ -234,8 +248,21 @@
         document.querySelectorAll('.prec-btn').forEach(btn => {
             btn.classList.toggle('active', parseInt(btn.innerText.split('/')[1]) === d);
         });
+        refreshUI();
+    }
+
+    function toggleDisplayMode() {
+        displayMode = displayMode === 'fraction' ? 'decimal' : 'fraction';
+        document.getElementById('mode-text').innerText = displayMode.charAt(0).toUpperCase() + displayMode.slice(1);
+        refreshUI();
+    }
+
+    function refreshUI() {
         updateDisplay(); updatePreview(); calculateLayout(); updateSavedList();
     }
+
+    // MATH HELPERS
+    function gcd(a, b) { return b ? gcd(b, a % b) : a; }
 
     function formatResult(val) {
         if (displayMode === 'decimal') return val.toFixed(4) + '"';
@@ -255,11 +282,11 @@
             if (sixtyFourths === 64) return `${sign}${w + 1}"`;
             numerator = sixtyFourths; denominator = 64;
         }
-        const gcd = (a, b) => b ? gcd(b, a % b) : a;
         const common = gcd(numerator, denominator);
         return `${sign}${w > 0 ? w + ' ' : ''}${numerator/common}/${denominator/common}"`;
     }
 
+    // CALCULATOR LOGIC
     function press(type, val) {
         if (type === 'w') {
             if (val === '.' && inputW.includes('.')) return;
@@ -301,9 +328,10 @@
         nextOp = 'add';
     }
 
+    // SAVED LIST
     function saveMeasurement() {
         if (totalValue === 0 && isFirstEntry) return;
-        const partName = prompt("Enter a name for this measurement:", "Part " + (savedMeasurements.length + 1));
+        const partName = prompt("Enter a name:", "Part " + (savedMeasurements.length + 1));
         if (partName) {
             savedMeasurements.push({ name: partName, value: totalValue });
             updateSavedList();
@@ -314,34 +342,12 @@
         const tbody = document.getElementById('saved-list-body');
         tbody.innerHTML = '';
         savedMeasurements.forEach((item, index) => {
-            tbody.innerHTML += `
-                <tr>
-                    <td>${item.name}</td>
-                    <td class="highlight">${formatResult(item.value)}</td>
-                    <td><button class="btn-del-save" onclick="deleteSave(${index})">Delete</button></td>
-                </tr>
-            `;
+            tbody.innerHTML += `<tr><td>${item.name}</td><td class="highlight">${formatResult(item.value)}</td><td><button class="btn-del-save" onclick="deleteSave(${index})">Delete</button></td></tr>`;
         });
     }
 
-    function deleteSave(index) {
-        savedMeasurements.splice(index, 1);
-        updateSavedList();
-    }
-
-    function clearAllSaved() {
-        if (savedMeasurements.length === 0) return;
-        if (confirm("Clear all saved measurements?")) {
-            savedMeasurements = [];
-            updateSavedList();
-        }
-    }
-
-    function toggleDisplayMode() {
-        displayMode = displayMode === 'fraction' ? 'decimal' : 'fraction';
-        document.getElementById('mode-text').innerText = displayMode.charAt(0).toUpperCase() + displayMode.slice(1);
-        updateDisplay(); updatePreview(); calculateLayout(); updateSavedList();
-    }
+    function deleteSave(i) { savedMeasurements.splice(i, 1); updateSavedList(); }
+    function clearAllSaved() { if (confirm("Clear all?")) { savedMeasurements = []; updateSavedList(); } }
 
     function updatePreview() { document.getElementById('preview').innerText = `${ops[nextOp].sym} ${formatResult(getCurrentIn())}`; }
     function updateDisplay() { document.getElementById('total').innerText = formatResult(totalValue); }
@@ -349,42 +355,54 @@
     function reset() { totalValue = 0; nextOp = 'add'; isFirstEntry = true; clearInput(); updateDisplay(); document.getElementById('history-log').innerHTML = "History: Ready"; }
     function logHistory(msg) { const log = document.getElementById('history-log'); log.innerHTML += `<div>${msg}</div>`; log.scrollTop = log.scrollHeight; }
 
+    // LAYOUT WIDGET LOGIC
+    function toggleMirrorUI() {
+        const isMirrored = document.getElementById('lay-mirror').checked;
+        document.getElementById('mirror-input-container').style.display = isMirrored ? 'flex' : 'none';
+        document.getElementById('split-input-container').style.display = isMirrored ? 'none' : 'block';
+        calculateLayout();
+    }
+
     function calculateLayout() {
         const L = parseFloat(document.getElementById('lay-length').value) || 0;
-        const offset = parseFloat(document.getElementById('lay-offset').value) || 0;
         const n = parseInt(document.getElementById('lay-count').value) || 0;
+        const isMirrored = document.getElementById('lay-mirror').checked;
+        
+        let sOff, eOff;
+        if (isMirrored) {
+            sOff = eOff = parseFloat(document.getElementById('lay-offset-mirror').value) || 0;
+        } else {
+            sOff = parseFloat(document.getElementById('lay-offset-start').value) || 0;
+            eOff = parseFloat(document.getElementById('lay-offset-end').value) || 0;
+        }
+
         const tbody = document.getElementById('layout-table-body');
         const summary = document.getElementById('layout-summary');
-        
         tbody.innerHTML = '';
+
         if (L <= 0 || n <= 0) return;
 
-        const usableLength = L - (offset * 2);
+        const usableLength = L - sOff - eOff;
         if (usableLength < 0 && n > 1) {
             summary.innerHTML = `<span style="color:#c0392b">Offsets exceed total length.</span>`;
             return;
         }
 
         const centerSpacing = n > 1 ? usableLength / (n - 1) : 0;
-        
-        if (n === 1) {
-            summary.innerHTML = `Single hole centered at <span class="highlight">${formatResult(L/2)}</span>`;
-        } else {
-            summary.innerHTML = `Inner C-to-C Gap: <span class="highlight">${formatResult(centerSpacing)}</span>`;
-        }
+        summary.innerHTML = n === 1 ? `Hole centered at <span class="highlight">${formatResult(L/2)}</span>` : `Inner Gap: <span class="highlight">${formatResult(centerSpacing)}</span>`;
 
         for (let i = 0; i < n; i++) {
-            const pos = n === 1 ? L / 2 : offset + (centerSpacing * i);
-            const isDistinct = (i === 0 || i === n - 1); // Check for first and last
+            const pos = n === 1 ? L / 2 : sOff + (centerSpacing * i);
+            const isDistinct = (i === 0 || i === n - 1);
             tbody.innerHTML += `
                 <tr>
                     <td>Mark ${i+1}</td>
                     <td class="${isDistinct ? 'distinct' : 'highlight'}">${formatResult(pos)}</td>
                     <td>${i === 0 ? 'Start' : formatResult(centerSpacing)}</td>
-                </tr>
-            `;
+                </tr>`;
         }
     }
+    
     calculateLayout();
 </script>
 </body>
