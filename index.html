@@ -50,6 +50,17 @@
         .btn-eq { background: var(--success); color: white; padding: 15px; font-size: 1.4rem; width: 100%; }
         .btn-save { background: var(--purple); color: white; padding: 12px; font-size: 1.1rem; text-transform: uppercase; width: 100%; }
 
+        /* HISTORY STYLING */
+        .history-section { margin-top: 15px; border-top: 1px solid #333; padding-top: 10px; }
+        .history-summary { cursor: pointer; font-size: 0.8rem; color: #888; padding: 5px 0; outline: none; }
+        .history-summary:hover { color: var(--wood); }
+        .history-list { max-height: 180px; overflow-y: auto; margin-top: 10px; font-family: monospace; font-size: 0.8rem; }
+        .history-entry { display: flex; align-items: center; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #222; }
+        .history-text { color: #888; flex-grow: 1; padding-right: 10px; }
+        .history-result { color: var(--wood); font-weight: bold; }
+        .btn-recall { background: #444; color: white; padding: 2px 6px; font-size: 0.7rem; border-radius: 3px; margin-left: 10px; }
+        .btn-recall:hover { background: var(--success); }
+
         .l-field { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
         .l-field input { background: #000; border: 1px solid #444; color: var(--wood); padding: 8px; border-radius: 4px; width: 90px; text-align: center; font-size: 1rem; }
         table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 0.85rem; }
@@ -123,6 +134,11 @@
             <button class="btn-eq" onclick="finish()">TOTAL (=)</button>
             <button class="btn-save" onclick="saveMeasurement()">💾 Save to Cut List</button>
         </div>
+
+        <details class="history-section" open>
+            <summary class="history-summary">Calculation Tape</summary>
+            <div id="history-log" class="history-list"></div>
+        </details>
     </div>
 
     <div style="width: 100%; max-width: 500px;">
@@ -180,7 +196,6 @@
 
     const ops = { add: { sym: '+', fn: (a, b) => a + b }, sub: { sym: '-', fn: (a, b) => a - b }, mul: { sym: '×', fn: (a, b) => a * b }, div: { sym: '÷', fn: (a, b) => b === 0 ? a : a / b } };
 
-    // SYNC LOGIC
     function syncToUrl() {
         const state = {
             t: document.getElementById('project-title').value,
@@ -202,9 +217,7 @@
 
     function copyProjectLink() {
         syncToUrl();
-        navigator.clipboard.writeText(window.location.href).then(() => {
-            alert("Project Link Copied!");
-        });
+        navigator.clipboard.writeText(window.location.href).then(() => alert("Project Link Copied!"));
     }
 
     function loadFromUrl() {
@@ -235,12 +248,12 @@
         } catch (e) { console.error("Load failed", e); }
     }
 
-    // CORE UI
     function refreshUI() { updateDisplay(); updatePreview(); calculateLayout(); updateSavedList(); calculateBF(); updateMaterialList(); }
     function toggleSnap() { isSnapEnabled = document.getElementById('snap-toggle').checked; document.getElementById('prec-container').classList.toggle('disabled', !isSnapEnabled); syncToUrl(); refreshUI(); }
     function setPrecision(d) { roundingDenominator = d; document.querySelectorAll('.prec-btn').forEach(b => b.classList.toggle('active', b.innerText.includes(d))); syncToUrl(); refreshUI(); }
     function toggleDisplayMode() { displayMode = displayMode === 'fraction' ? 'decimal' : 'fraction'; document.getElementById('mode-text').innerText = displayMode.charAt(0).toUpperCase() + displayMode.slice(1); syncToUrl(); refreshUI(); }
     function gcd(a, b) { return b ? gcd(b, a % b) : a; }
+    
     function formatResult(val) {
         if (displayMode === 'decimal') return val.toFixed(4) + '"';
         const absVal = Math.abs(val), w = Math.floor(absVal), rem = absVal - w;
@@ -251,12 +264,60 @@
         const c = gcd(n, d); return `${val < 0 ? '-' : ''}${w > 0 ? w + ' ' : ''}${n/c}/${d/c}"`;
     }
     
-    // CALCULATOR BUTTONS
     function press(t, v) { if(t==='w'){ if(v==='.' && inputW.includes('.')) return; inputW = inputW === "0" && v !== '.' ? v.toString() : inputW + v; } else { inputN = inputN === "0" ? v.toString() : inputN + v; } updatePreview(); }
     function setDen(d) { inputD = d; updatePreview(); }
     function getCurrentIn() { return (parseFloat(inputW)||0) + ((parseInt(inputN)||0)/inputD); }
-    function handleOp(k) { const c = getCurrentIn(); if(isFirstEntry){ totalValue = c; isFirstEntry = false; } else { totalValue = ops[nextOp].fn(totalValue, c); } nextOp = k; clearInput(); updateDisplay(); }
-    function finish() { const c = getCurrentIn(); totalValue = !isFirstEntry ? ops[nextOp].fn(totalValue, c) : c; isFirstEntry = false; updateDisplay(); clearInput(); nextOp = 'add'; }
+    
+    function addToHistory(left, op, right, result) {
+        const log = document.getElementById('history-log');
+        const entry = document.createElement('div');
+        entry.className = 'history-entry';
+        const valToRecall = result;
+        entry.innerHTML = `
+            <div class="history-text">${formatResult(left)} ${op} ${formatResult(right)} =</div>
+            <div class="history-result">${formatResult(result)}</div>
+            <button class="btn-recall" title="Recall" onclick="recallValue(${valToRecall})">↺</button>
+        `;
+        log.prepend(entry);
+    }
+
+    function recallValue(val) {
+        totalValue = val;
+        isFirstEntry = false;
+        updateDisplay();
+    }
+
+    function handleOp(k) { 
+        const c = getCurrentIn(); 
+        const oldTotal = totalValue;
+        if(isFirstEntry){ 
+            totalValue = c; 
+            isFirstEntry = false; 
+        } else { 
+            totalValue = ops[nextOp].fn(totalValue, c); 
+            addToHistory(oldTotal, ops[nextOp].sym, c, totalValue);
+        } 
+        nextOp = k; 
+        clearInput(); 
+        updateDisplay(); 
+    }
+    
+    function finish() { 
+        const c = getCurrentIn(); 
+        const oldTotal = totalValue;
+        const result = !isFirstEntry ? ops[nextOp].fn(totalValue, c) : c;
+        
+        if (!isFirstEntry) {
+            addToHistory(oldTotal, ops[nextOp].sym, c, result);
+        }
+
+        totalValue = result;
+        isFirstEntry = true; 
+        updateDisplay(); 
+        clearInput(); 
+        nextOp = 'add'; 
+    }
+
     function saveMeasurement() { const n = prompt("Name:"); if(n){ savedMeasurements.push({name:n, value:totalValue}); syncToUrl(); updateSavedList(); } }
     function updateSavedList() { const b = document.getElementById('saved-list-body'); b.innerHTML = ''; savedMeasurements.forEach((m, i) => { b.innerHTML += `<tr><td>${m.name}</td><td class="highlight">${formatResult(m.value)}</td><td><button class="btn-del-save" onclick="deleteSave(${i})">X</button></td></tr>`; }); }
     function deleteSave(i) { savedMeasurements.splice(i, 1); syncToUrl(); updateSavedList(); }
@@ -264,9 +325,15 @@
     function updatePreview() { document.getElementById('preview').innerText = `${ops[nextOp].sym} ${formatResult(getCurrentIn())}`; }
     function updateDisplay() { document.getElementById('total').innerText = formatResult(totalValue); }
     function clearInput() { inputW = "0"; inputN = "0"; inputD = 1; updatePreview(); }
-    function reset() { totalValue = 0; isFirstEntry = true; clearInput(); updateDisplay(); }
+    
+    function reset() { 
+        totalValue = 0; 
+        isFirstEntry = true; 
+        document.getElementById('history-log').innerHTML = '';
+        clearInput(); 
+        updateDisplay(); 
+    }
 
-    // LAYOUT LOGIC
     function toggleMirrorUI() { const m = document.getElementById('lay-mirror').checked; document.getElementById('mirror-input-container').style.display = m ? 'flex' : 'none'; document.getElementById('split-input-container').style.display = m ? 'none' : 'block'; calculateLayout(); syncToUrl(); }
     function calculateLayout() {
         const L = parseFloat(document.getElementById('lay-length').value) || 0, n = parseInt(document.getElementById('lay-count').value) || 0, m = document.getElementById('lay-mirror').checked;
@@ -281,7 +348,6 @@
         syncToUrl();
     }
 
-    // MATERIALS LOGIC
     function calculateBF() {
         const t = parseFloat(document.getElementById('bf-thick').value)||0, w = parseFloat(document.getElementById('bf-width').value)||0, l = parseFloat(document.getElementById('bf-length').value)||0, c = parseFloat(document.getElementById('bf-cost').value)||0, q = parseFloat(document.getElementById('bf-qty').value)||1;
         const currentBF = ((t * w * l) / 12) * q, currentCost = currentBF * c;
