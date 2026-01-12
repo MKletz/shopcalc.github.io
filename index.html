@@ -78,11 +78,14 @@
         }
 
         .pad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+        .op-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; margin-top: 10px; }
+        .den-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 10px; }
+        
         button { border: none; border-radius: 4px; cursor: pointer; font-weight: bold; transition: 0.1s; }
         
         .btn-num { background: #3d3d3d; color: white; padding: 15px 0; font-size: 1.1rem; }
         .btn-den { background: #2980b9; color: white; padding: 15px 0; font-size: 1.1rem; }
-        .btn-op { background: var(--wood); color: white; padding: 12px 0; font-size: 1.3rem; }
+        .btn-op { background: var(--wood); color: white; padding: 15px 0; font-size: 1.3rem; }
         .btn-clr { background: var(--danger); color: white; }
         .btn-toggle { background: var(--decimal-blue); color: white; padding: 10px; font-size: 0.8rem; text-transform: uppercase; width: 100%; border-radius: 4px; }
         .btn-clear-list { background: transparent; border: 1px solid var(--danger); color: var(--danger); padding: 4px 8px; font-size: 0.65rem; text-transform: uppercase; border-radius: 4px; }
@@ -164,8 +167,14 @@
                         <button class="btn-num" onclick="press('w', 1)">1</button><button class="btn-num" onclick="press('w', 2)">2</button><button class="btn-num" onclick="press('w', 3)">3</button>
                         <button class="btn-num" onclick="press('w', '.')">.</button><button class="btn-num" onclick="press('w', 0)">0</button><button class="btn-clr" onclick="clearInput()">CE</button>
                     </div>
+                    <div class="op-grid">
+                        <button class="btn-op" onclick="handleOp('add')">+</button><button class="btn-op" onclick="handleOp('sub')">-</button>
+                        <button class="btn-op" onclick="handleOp('mul')">×</button><button class="btn-op" onclick="handleOp('div')">÷</button>
+                    </div>
                 </div>
+
                 <div class="calc-divider"></div>
+
                 <div>
                     <div class="pad">
                         <button class="btn-num" onclick="press('n', 7)">7</button><button class="btn-num" onclick="press('n', 8)">8</button><button class="btn-num" onclick="press('n', 9)">9</button>
@@ -173,16 +182,13 @@
                         <button class="btn-num" onclick="press('n', 1)">1</button><button class="btn-num" onclick="press('n', 2)">2</button><button class="btn-num" onclick="press('n', 3)">3</button>
                         <button class="btn-clr" style="grid-column: span 2" onclick="resetCalc()">RESET</button><button class="btn-num" onclick="press('n', 0)">0</button>
                     </div>
+                    <div class="den-grid">
+                        <button class="btn-den" onclick="setDen(4)">/4</button><button class="btn-den" onclick="setDen(8)">/8</button><button class="btn-den" onclick="setDen(16)">/16</button>
+                        <button class="btn-den" onclick="setDen(32)">/32</button><button class="btn-den" onclick="setDen(64)">/64</button><button class="btn-den" onclick="setDen(128)">/128</button>
+                    </div>
                 </div>
             </div>
-            <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:6px; margin-top:8px;">
-                <button class="btn-op" onclick="handleOp('add')">+</button><button class="btn-op" onclick="handleOp('sub')">-</button>
-                <button class="btn-op" onclick="handleOp('mul')">×</button><button class="btn-op" onclick="handleOp('div')">÷</button>
-            </div>
-            <div class="pad" style="margin-top:10px; grid-template-columns: repeat(3, 1fr);">
-                <button class="btn-den" onclick="setDen(4)">/4</button><button class="btn-den" onclick="setDen(8)">/8</button><button class="btn-den" onclick="setDen(16)">/16</button>
-                <button class="btn-den" onclick="setDen(32)">/32</button><button class="btn-den" onclick="setDen(64)">/64</button><button class="btn-den" onclick="setDen(128)">/128</button>
-            </div>
+
             <div class="action-area">
                 <button class="btn-eq" onclick="finish()">TOTAL (=)</button>
                 <button class="btn-save" onclick="saveMeasurement()">💾 Save to Cut List</button>
