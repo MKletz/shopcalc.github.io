@@ -179,9 +179,9 @@
                 <button class="btn-op" onclick="handleOp('add')">+</button><button class="btn-op" onclick="handleOp('sub')">-</button>
                 <button class="btn-op" onclick="handleOp('mul')">×</button><button class="btn-op" onclick="handleOp('div')">÷</button>
             </div>
-            <div class="pad" style="margin-top:10px;">
+            <div class="pad" style="margin-top:10px; grid-template-columns: repeat(3, 1fr);">
                 <button class="btn-den" onclick="setDen(4)">/4</button><button class="btn-den" onclick="setDen(8)">/8</button><button class="btn-den" onclick="setDen(16)">/16</button>
-                <button class="btn-den" onclick="setDen(32)">/32</button><button class="btn-den" style="grid-column: span 2" onclick="setDen(64)">/64</button>
+                <button class="btn-den" onclick="setDen(32)">/32</button><button class="btn-den" onclick="setDen(64)">/64</button><button class="btn-den" onclick="setDen(128)">/128</button>
             </div>
             <div class="action-area">
                 <button class="btn-eq" onclick="finish()">TOTAL (=)</button>
@@ -300,7 +300,7 @@
         if (displayMode === 'decimal') return val.toFixed(4) + '"';
         const absVal = Math.abs(val), w = Math.floor(absVal), rem = absVal - w;
         let n, d;
-        if (isSnapEnabled) { n = Math.round(rem * roundingDenominator); d = roundingDenominator; } else { n = Math.round(rem * 64); d = 64; }
+        if (isSnapEnabled) { n = Math.round(rem * roundingDenominator); d = roundingDenominator; } else { n = Math.round(rem * 128); d = 128; }
         if (n === 0) return `${val < 0 ? '-' : ''}${w}"`;
         if (n === d) return `${val < 0 ? '-' : ''}${w + 1}"`;
         const c = gcd(n, d); return `${val < 0 ? '-' : ''}${w > 0 ? w + ' ' : ''}${n/c}/${d/c}"`;
