@@ -58,25 +58,6 @@
         .layout-grid { display: grid; grid-template-columns: 1fr auto 1fr; gap: 0px; margin-bottom: 10px; }
         .calc-divider { width: 1px; background: #444; margin: 0 10px; }
         
-        @media (max-width: 500px) {
-            body { padding: 8px; }
-            .widget { padding: 12px; }
-            .display { padding: 0.8rem; margin-bottom: 8px; }
-            .res-total { font-size: 1.8rem; }
-            .global-settings { padding: 8px; margin-bottom: 10px; }
-            .settings-row { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
-            .btn-toggle { font-size: 0.7rem; padding: 8px; }
-            .btn-num, .btn-den { padding: 8px 0; font-size: 0.9rem; }
-            .btn-op { padding: 6px 0; font-size: 1rem; }
-            .btn-eq { padding: 10px; font-size: 1.1rem; }
-            .btn-save { padding: 8px; font-size: 0.85rem; }
-            .layout-grid { grid-template-columns: 1fr auto 1fr; }
-            .pad { gap: 4px; }
-            .project-title-input { font-size: 1.4rem; }
-            .l-field label { font-size: 0.8rem; }
-            .l-field input { width: 70px; padding: 6px; }
-        }
-
         .pad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
         .op-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; margin-top: 10px; }
         .den-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 10px; }
@@ -94,10 +75,14 @@
         .btn-eq { background: var(--success); color: white; padding: 15px; font-size: 1.4rem; width: 100%; }
         .btn-save { background: var(--purple); color: white; padding: 12px; font-size: 1.1rem; text-transform: uppercase; width: 100%; }
 
+        /* TAPE CSS */
         .history-section { margin-top: 15px; border-top: 1px solid #333; padding-top: 10px; }
         .history-summary { cursor: pointer; font-size: 0.8rem; color: #888; padding: 5px 0; outline: none; }
-        .history-list { max-height: 150px; overflow-y: auto; margin-top: 10px; font-family: monospace; font-size: 0.8rem; }
-        .history-entry { display: flex; align-items: center; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #222; }
+        .history-list { max-height: 200px; overflow-y: auto; margin-top: 10px; font-family: monospace; font-size: 0.85rem; }
+        .history-entry { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #222; gap: 10px; }
+        .history-text { color: #aaa; flex-grow: 1; }
+        .history-result { color: var(--wood); font-weight: bold; }
+        .btn-recall { background: #444; color: #fff; padding: 4px 8px; font-size: 0.7rem; border-radius: 4px; }
         
         .notes-area { width: 100%; min-height: 80px; background: #111; border: 1px solid #444; color: #ddd; padding: 12px; border-radius: 6px; resize: none; box-sizing: border-box; line-height: 1.5; font-family: inherit; font-size: 0.95rem; overflow-y: hidden;}
         .l-field { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
@@ -201,8 +186,9 @@
                     <tbody id="saved-list-body"></tbody>
                 </table>
             </div>
-            <details class="history-section">
-                <summary class="history-summary">Tape</summary>
+            
+            <details class="history-section" open>
+                <summary class="history-summary">Tape (History)</summary>
                 <div id="history-log" class="history-list"></div>
             </details>
         </div>
@@ -377,21 +363,15 @@
         const body = document.getElementById('material-list-body'); 
         const footer = document.getElementById('material-list-footer');
         body.innerHTML = ''; footer.innerHTML = '';
-        
-        let totalBF = 0;
-        let totalCost = 0;
-
+        let totalBF = 0; let totalCost = 0;
         savedMaterials.forEach((m, i) => { 
-            totalBF += m.bf;
-            totalCost += m.cost;
+            totalBF += m.bf; totalCost += m.cost;
             body.innerHTML += `<tr><td>${m.name}</td><td>${m.bf.toFixed(2)}</td><td class="highlight">$${m.cost.toFixed(2)}</td><td><button class="btn-del-save" onclick="deleteMaterial(${i})">X</button></td></tr>`; 
         });
-
         if (savedMaterials.length > 0) {
             footer.innerHTML = `<tr class="grand-total-row"><td>TOTAL</td><td>${totalBF.toFixed(2)}</td><td class="distinct">$${totalCost.toFixed(2)}</td><td></td></tr>`;
         }
     }
-
     function deleteMaterial(i) { savedMaterials.splice(i, 1); syncState(); updateMaterialList(); }
     function clearAllMaterials() { if(confirm("Clear?")){ savedMaterials = []; updateMaterialList(); } }
     window.onload = loadProject;
